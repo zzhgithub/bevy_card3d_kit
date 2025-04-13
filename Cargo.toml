@@ -1,0 +1,40 @@
+[package]
+name = "card3d_kit"
+version = "0.1.0"
+edition = "2024"
+description = "a lib for put and use Card in 3d"
+
+[workspace]
+resolver = "2"
+
+[dependencies]
+bevy = { version = "0.15.0", default-features = false }
+bevy_tween = "0.7"
+serde = { version = "1.0.219", features = ["derive"] }
+rand = "0.9.0-beta.1"
+
+[build-dependencies]
+rustc_version = "0.4.0"
+
+[dev-dependencies]
+bevy-inspector-egui = "0.28.0"
+
+[dev-dependencies.bevy]
+version = "0.15.0"
+default-features = false
+features = [
+    "bevy_window",
+    "bevy_pbr",
+    "bevy_winit",
+    "bevy_core_pipeline",
+    "bevy_sprite",
+    "hdr",
+    "tonemapping_luts",
+    "png",
+    "bevy_picking",
+    "bevy_mesh_picking_backend"
+]
+
+[[example]]
+name = "simlpe"
+path = "examples/simple.rs"
