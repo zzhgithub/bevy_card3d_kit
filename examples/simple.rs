@@ -1,6 +1,6 @@
 use bevy::picking::prelude::MeshPickingPlugin;
 use bevy::prelude::*;
-use card3d_kit::prelude::{Card3DConfig, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera, spawn_card};
+use bevy_card3d_kit::prelude::{Card3DConfig, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera, spawn_card};
 
 fn main() {
     App::new()

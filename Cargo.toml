@@ -1,5 +1,5 @@
 [package]
-name = "card3d_kit"
+name = "bevy_card3d_kit"
 version = "0.1.0"
 edition = "2024"
 description = "a lib for put and use Card in 3d"

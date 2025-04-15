@@ -448,6 +448,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_card3d_kit"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy_tween",
+ "rand 0.9.0",
+ "serde",
+]
+
+[[package]]
 name = "bevy_color"
 version = "0.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1410,17 +1421,6 @@ dependencies = [
  "rustix",
  "wayland-backend",
  "wayland-client",
-]
-
-[[package]]
-name = "card3d_kit"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "bevy_tween",
- "rand 0.9.0",
- "serde",
 ]
 
 [[package]]
