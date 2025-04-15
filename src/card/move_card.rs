@@ -1,7 +1,9 @@
+use crate::prelude::event::DeclareDraggingDoneForCard;
 use crate::prelude::{Card, Dragged};
 use crate::tween::animation::play_card_going_back_to_place_animation;
 use bevy::app::App;
 use bevy::prelude::*;
+use bevy_tween::prelude::TweenEvent;
 use std::marker::PhantomData;
 
 /// 可以被移动的
@@ -20,9 +22,10 @@ where
     P: Send + Sync + 'static + Component,
 {
     fn build(&self, app: &mut App) {
-        app.add_observer(on_drag_start);
-        app.add_observer(move_on_drag::<P>());
-        app.add_observer(back_to_origin_when_unused);
+        app.add_observer(on_drag_start)
+            .add_observer(move_on_drag::<P>())
+            .add_observer(back_to_origin_when_unused)
+            .add_observer(listen_to_dragging_done_for_card);
     }
 }
 
@@ -96,5 +99,19 @@ fn back_to_origin_when_unused(
             card_name,
             &mut commands,
         );
+    }
+}
+
+fn listen_to_dragging_done_for_card(
+    trigger: Trigger<TweenEvent<DeclareDraggingDoneForCard>>,
+    cards: Query<(), With<Card>>,
+    mut commands: Commands,
+) {
+    if let Some(entity) = trigger.data.card_entity {
+        if let Ok(_card) = cards.get(entity) {
+            if let Some(mut entity_commands) = commands.get_entity(entity) {
+                entity_commands.remove::<Dragged>();
+            }
+        }
     }
 }
