@@ -1,5 +1,6 @@
 use crate::card::card_mesh::gen_card_mesh_list;
 use crate::card3d::Card3DConfig;
+use crate::prelude::Card;
 use bevy::asset::{Assets, Handle};
 use bevy::color::Color;
 use bevy::image::Image;
@@ -8,9 +9,11 @@ use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
 
 mod card_mesh;
+pub mod core;
+pub mod event;
 pub mod hand_card;
 pub mod move_card;
-pub mod event;
+pub mod card_namer;
 
 /// 生成一个Card实体
 pub fn spawn_card<T: Bundle>(
@@ -33,6 +36,9 @@ pub fn spawn_card<T: Bundle>(
 
     commands
         .spawn(bundle)
+        .insert(Card {
+            origin: transform.clone(),
+        })
         .insert(Visibility::Inherited)
         .insert(AnimationTarget)
         .insert(transform)
@@ -66,6 +72,7 @@ pub fn spawn_card<T: Bundle>(
                     trans.clone(),
                     MeshMaterial3d(materials.add(StandardMaterial {
                         base_color: Color::WHITE,
+                        unlit: true,
                         base_color_texture: Some(back_image.clone()),
                         alpha_mode: AlphaMode::Blend,
                         ..Default::default()

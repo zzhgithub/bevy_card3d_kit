@@ -16,6 +16,7 @@ use std::time::Duration;
 mod base_color;
 mod clear_on_finish;
 pub mod shark;
+pub mod animation;
 
 pub struct ExtTweenPlugins;
 
@@ -83,7 +84,7 @@ fn effect_system(
                 unlit: true,
                 ..Default::default()
             });
-            let mut target = handle.clone().into_target();
+            let target = handle.clone().into_target();
 
             let entity = AnimationTarget.into_target();
             commands

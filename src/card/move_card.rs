@@ -1,3 +1,5 @@
+use crate::prelude::{Card, Dragged};
+use crate::tween::animation::play_card_going_back_to_place_animation;
 use bevy::app::App;
 use bevy::prelude::*;
 use std::marker::PhantomData;
@@ -6,34 +8,33 @@ use std::marker::PhantomData;
 #[derive(Component, Copy, Clone)]
 pub struct Moveable;
 
-pub struct MoveCardPlugin<C, P>
+pub struct MoveCardPlugin<P>
 where
-    C: Component,
     P: Component,
 {
-    pub(crate) _phantom: PhantomData<(C, P)>,
+    pub(crate) _phantom: PhantomData<P>,
 }
 
-impl<C, P> Plugin for MoveCardPlugin<C, P>
+impl<P> Plugin for MoveCardPlugin<P>
 where
-    C: Send + Sync + 'static + Component,
     P: Send + Sync + 'static + Component,
 {
     fn build(&self, app: &mut App) {
-        app.add_observer(move_on_drag::<C, P>());
+        app.add_observer(on_drag_start);
+        app.add_observer(move_on_drag::<P>());
+        app.add_observer(back_to_origin_when_unused);
     }
 }
 
 /// 在3d的某个平面上一移动observer
-pub fn move_on_drag<C, P>() -> impl Fn(
+pub fn move_on_drag<P>() -> impl Fn(
     Trigger<Pointer<Drag>>,
-    Query<&mut Transform, (With<C>, With<Moveable>)>,
+    Query<&mut Transform, (With<Card>, With<Moveable>)>,
     Single<(&Camera, &GlobalTransform)>,
     Single<&Window>,
     Single<&GlobalTransform, With<P>>,
 )
 where
-    C: Component,
     P: Component,
 {
     move |drag, mut transforms, camera_query, windows, ground| {
@@ -63,5 +64,37 @@ where
     }
 }
 
-// todo drag start
-// todo drag end
+fn on_drag_start(
+    drag_start: Trigger<Pointer<DragStart>>,
+    // 可以被‘移动’的‘卡片’
+    mut card_transforms: Query<(&mut Transform, &Card), (With<Card>, With<Moveable>)>,
+    mut commands: Commands,
+) {
+    if let Ok((_card_transform, _card)) = card_transforms.get_mut(drag_start.entity()) {
+        if let Some(mut entity_commands) = commands.get_entity(drag_start.entity()) {
+            entity_commands
+                .insert(Dragged::Actively)
+                .insert(PickingBehavior::IGNORE);
+        }
+    }
+}
+
+fn back_to_origin_when_unused(
+    drag_end: Trigger<Pointer<DragEnd>>,
+    mut dragged_cards: Query<(&mut Transform, Entity, &Card, &mut Dragged, &Name)>,
+    mut commands: Commands,
+) {
+    if let Ok((card_transform, card_entity, card, mut card_dragged_component, card_name)) =
+        dragged_cards.get_mut(drag_end.entity())
+    {
+        *card_dragged_component = Dragged::GoingBackToPlace;
+        // 进行动画
+        play_card_going_back_to_place_animation(
+            card_entity,
+            card,
+            &card_transform,
+            card_name,
+            &mut commands,
+        );
+    }
+}
