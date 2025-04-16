@@ -60,9 +60,13 @@ fn setup(
 |hand_card|手牌|
 
 simple.rs
+
 https://github.com/user-attachments/assets/892158c5-2788-4906-a22a-7fca0f820ec9
+
 hand_card.rs
+
 https://github.com/user-attachments/assets/124294e4-1d45-40a7-8c49-8dcf29eaf198
+
 
 
 # 版本
