@@ -59,6 +59,11 @@ fn setup(
 |simple|基础使用|
 |hand_card|手牌|
 
+simple.rs
+![](https://github.com/zzhgithub/bevy_card3d_kit/blame/9f0ff5d673a5b4a4529f5ad248ee56e89ee8bfd4/doc/simple.mp4)
+
+hand_card.rs
+![](https://github.com/zzhgithub/bevy_card3d_kit/blob/9f0ff5d673a5b4a4529f5ad248ee56e89ee8bfd4/doc/hand_card.mp4)
 
 
 # 版本
