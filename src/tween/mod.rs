@@ -13,10 +13,10 @@ use bevy_tween::tween::AnimationTarget;
 use bevy_tween::{BevyTweenRegisterSystems, asset_tween_system};
 use std::time::Duration;
 
+pub mod animation;
 mod base_color;
 pub mod clear_on_finish;
 pub mod shark;
-pub mod animation;
 
 pub struct ExtTweenPlugins;
 
@@ -24,7 +24,7 @@ impl Plugin for ExtTweenPlugins {
     fn build(&self, app: &mut App) {
         app.add_plugins(CardsEventsPlugin);
         // 在动画执行后 删除原来的动画实体
-        app.add_systems(Update, clear_on_finish_system);
+        app.add_systems(Update, (clear_on_finish_system, despawn_done_time_runners));
         // 导入3d的Color变化
         app.add_tween_systems(asset_tween_system::<BaseColor>())
             .register_type::<AssetTween<BaseColor>>();
@@ -142,6 +142,17 @@ fn despawn_effect_system(
             commands.entity(ended.time_runner).despawn_recursive();
         }
     });
+}
+
+pub fn despawn_done_time_runners(
+    mut time_runner_ended_reader: EventReader<TimeRunnerEnded>,
+    mut commands: Commands,
+) {
+    for event in time_runner_ended_reader.read() {
+        if event.is_completed() {
+            commands.entity(event.time_runner).try_despawn_recursive();
+        }
+    }
 }
 
 fn into_color<T: Into<bevy::color::Srgba>>(color: T) -> Color {

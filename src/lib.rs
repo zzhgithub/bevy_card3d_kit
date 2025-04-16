@@ -10,4 +10,5 @@ pub mod prelude {
     pub use crate::card3d::Card3DConfig;
     pub use crate::card3d::Card3DPlugins;
     pub use crate::tween::shark::SharkCamera;
+    pub use crate::tween::clear_on_finish::ClearOnFinishExt;
 }

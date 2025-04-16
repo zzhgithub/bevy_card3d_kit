@@ -4,8 +4,7 @@ use bevy::prelude::{Commands, Component, Entity, EventReader, Has, Query};
 #[derive(Component)]
 pub struct ClearOnFinish;
 
-#[warn(dead_code)]
-pub(crate) trait ClearOnFinishExt {
+pub trait ClearOnFinishExt {
     fn clear_on_finish(self) -> Self;
 }
 

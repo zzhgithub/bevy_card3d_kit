@@ -1,13 +1,13 @@
+use crate::prelude::ClearOnFinishExt;
 use crate::prelude::{Card, Dragged, Moveable};
 use crate::tween::animation::play_card_going_back_to_place_animation;
-use crate::tween::clear_on_finish::ClearOnFinishExt;
 use bevy::math::ops::{cos, sin};
 use bevy::prelude::*;
 use bevy_tween::combinator::AnimationBuilderExt;
 use bevy_tween::prelude::{EaseKind, IntoTarget, TransformTargetStateExt};
+use bevy_tween::tween::AnimationTarget;
 use std::f32::consts::PI;
 use std::time::Duration;
-
 pub const HAND_CARD_LEVEL: f32 = 10.0;
 
 /// 手牌
@@ -45,7 +45,8 @@ impl Plugin for HandCardPlugin {
             .add_event::<HandCardChanged>()
             .add_systems(Startup, setup)
             .add_observer(on_hover)
-            .add_observer(on_hover_cancel);
+            .add_observer(on_hover_cancel)
+            .add_systems(Update, change_hand_cards);
     }
 }
 
@@ -92,7 +93,9 @@ pub fn on_hover(
     >,
 ) {
     if let Ok(parent) = query.get(over_trigger.target) {
+        info!("hover target {:?}",over_trigger.target);
         if let Ok((card_transform, _card, card_name)) = query_transform.get(parent.get()) {
+            info!("hand card on hovered {}", card_name);
             let target = parent.get().into_target();
             let mut start = target.transform_state(card_transform.clone());
             let mut end = card_transform.clone().translation;
@@ -109,6 +112,7 @@ pub fn on_hover(
         }
     }
 }
+
 /// 对手牌的数据进行 onHoverCancel的处理
 pub fn on_hover_cancel(
     out_trigger: Trigger<Pointer<Out>>,
@@ -121,6 +125,7 @@ pub fn on_hover_cancel(
 ) {
     if let Ok(parent) = query.get(out_trigger.target) {
         if let Ok((card_transform, card, card_name)) = query_transform.get(parent.get()) {
+            info!("hand card on out {}", card_name);
             play_card_going_back_to_place_animation(
                 parent.get(),
                 card,
@@ -133,4 +138,41 @@ pub fn on_hover_cancel(
     }
 }
 
-// TODO 对手牌进行变化时的处理
+///  对手牌进行变化时的处理
+pub fn change_hand_cards(
+    mut commands: Commands,
+    mut hand_card_changed: EventReader<HandCardChanged>,
+    mut cards: Query<(Entity, &mut Transform, &mut Card), With<HandCard>>,
+    card_plane: Query<&Transform, (With<HandCardPlane>, Without<Card>)>,
+) {
+    for _ in hand_card_changed.read() {
+        let num = cards.iter().len();
+        if num > 0 {
+            if let Ok(tr) = card_plane.get_single() {
+                let hand_positions =
+                    calculate_hand_positions(num, 0.0, 200., PI / 4., tr.translation.z, -6.7);
+                let mut list: Vec<_> = cards.iter_mut().collect();
+                // 排序保障动画流畅
+                list.sort_by(|a, b| a.1.translation.x.partial_cmp(&b.1.translation.x).unwrap());
+
+                list.iter_mut().enumerate().for_each(
+                    |(index, &mut (ref mut entity, ref mut transform, ref mut card))| {
+                        let target = AnimationTarget.into_target();
+                        let mut start = target.transform_state(transform.clone());
+                        if let Some(tr_end) = hand_positions.get(index) {
+                            commands
+                                .spawn((Name::new("hand card changed"),))
+                                .animation()
+                                .insert_tween_here(
+                                    Duration::from_secs_f32(0.2),
+                                    EaseKind::ExponentialOut,
+                                    start.translation_to(tr_end.clone().translation),
+                                );
+                            card.origin = tr_end.clone();
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
