@@ -60,10 +60,9 @@ fn setup(
 |hand_card|手牌|
 
 simple.rs
-![](https://github.com/zzhgithub/bevy_card3d_kit/blame/9f0ff5d673a5b4a4529f5ad248ee56e89ee8bfd4/doc/simple.mp4)
-
+https://github.com/user-attachments/assets/892158c5-2788-4906-a22a-7fca0f820ec9
 hand_card.rs
-![](https://github.com/zzhgithub/bevy_card3d_kit/blob/9f0ff5d673a5b4a4529f5ad248ee56e89ee8bfd4/doc/hand_card.mp4)
+https://github.com/user-attachments/assets/124294e4-1d45-40a7-8c49-8dcf29eaf198
 
 
 # 版本
