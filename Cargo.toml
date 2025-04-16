@@ -3,6 +3,10 @@ name = "bevy_card3d_kit"
 version = "0.1.0"
 edition = "2024"
 description = "a lib for put and use Card in 3d"
+categories = ["game-development"]
+homepage = ""
+repository = ""
+
 
 [workspace]
 resolver = "2"
@@ -10,7 +14,7 @@ resolver = "2"
 [dependencies]
 bevy = { version = "0.15.0", default-features = false }
 bevy_tween = "0.7"
-serde = { version = "1.0.219", features = ["derive"] }
+serde = { version = "1.0.217", features = ["derive"] }
 rand = "0.9.0-beta.1"
 
 [dev-dependencies]
@@ -35,3 +39,7 @@ features = [
 [[example]]
 name = "simlpe"
 path = "examples/simple.rs"
+
+[[example]]
+name = "hand_card"
+path = "examples/hand_card.rs"

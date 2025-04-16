@@ -1,6 +1,6 @@
 mod card;
 mod card3d;
-mod tween;
+pub mod tween;
 
 pub mod prelude {
     pub use crate::card::core::*;

@@ -9,11 +9,11 @@ use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
 
 mod card_mesh;
+pub mod card_namer;
 pub mod core;
 pub mod event;
 pub mod hand_card;
 pub mod move_card;
-pub mod card_namer;
 
 /// 生成一个Card实体
 pub fn spawn_card<T: Bundle>(

@@ -5,7 +5,7 @@ use bevy::prelude::{Commands, Component, Entity, EventReader, Has, Query};
 pub struct ClearOnFinish;
 
 #[warn(dead_code)]
-trait ClearOnFinishExt {
+pub(crate) trait ClearOnFinishExt {
     fn clear_on_finish(self) -> Self;
 }
 

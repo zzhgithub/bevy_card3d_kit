@@ -1,19 +1,19 @@
-use bevy::prelude::*;
-use bevy_card3d_kit::prelude::{Card3DConfig, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera, spawn_card};
+# Bevy Card3d Kit
 
+# 使用方法
+```rust
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, Card3DPlugins))
+        .add_plugins((
+            DefaultPlugins,
+            // 添加这个插件
+            Card3DPlugins))
         // .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
         .add_systems(Update, rotate_entities)
         .run();
 }
 
-#[derive(Component, Clone)]
-pub struct Rotating;
-
-// 初始化方法
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -39,6 +39,8 @@ fn setup(
 
     let face_image = asset_server.load(format!("cards/{}.png", "NAAI-A-001"));
     let back_image = asset_server.load(format!("cards/{}.png", "back"));
+    
+    // 可以使用这个创建卡片实体了！
     spawn_card(
         &mut commands,
         &mut materials,
@@ -49,12 +51,16 @@ fn setup(
         card3d_config.clone(),
         Rotating,
     );
-}
-
-fn rotate_entities(time: Res<Time>, mut query: Query<&mut Transform, With<Rotating>>) {
-    for mut transform in &mut query {
-        // 每秒旋转 90 度（PI/2 弧度）
-        let rotation_speed = std::f32::consts::PI / 2.0;
-        transform.rotate_y(rotation_speed * time.delta().as_secs_f32());
     }
-}
+```
+# 示例
+|example|desc|
+|------|-----|
+|simple|基础使用|
+|hand_card|手牌|
+
+
+
+# 版本
+
+# 鸣谢

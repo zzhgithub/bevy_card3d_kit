@@ -32,6 +32,7 @@ impl Plugin for Card3DPlugins {
         app.add_plugins((
             DefaultTweenPlugins,
             CardNamerPlugin,
+            MeshPickingPlugin,
             HandCardPlugin,
             ExtTweenPlugins,
             crate::prelude::MoveCardPlugin::<HandCardPlane> {

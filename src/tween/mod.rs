@@ -14,7 +14,7 @@ use bevy_tween::{BevyTweenRegisterSystems, asset_tween_system};
 use std::time::Duration;
 
 mod base_color;
-mod clear_on_finish;
+pub mod clear_on_finish;
 pub mod shark;
 pub mod animation;
 

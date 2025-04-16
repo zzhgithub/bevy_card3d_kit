@@ -5,6 +5,7 @@ use bevy::app::App;
 use bevy::prelude::*;
 use bevy_tween::prelude::TweenEvent;
 use std::marker::PhantomData;
+use crate::tween::clear_on_finish::ClearOnFinishExt;
 
 /// 可以被移动的
 #[derive(Component, Copy, Clone)]
