@@ -54,10 +54,11 @@ fn setup(
     }
 ```
 # 示例
-|example|desc|
-|------|-----|
-|simple|基础使用|
-|hand_card|手牌|
+| example   | desc |
+|-----------|------|
+| simple    | 基础使用 |
+| hand_card | 手牌   |
+| zone      | 场地基础 |
 
 simple.rs
 
@@ -67,6 +68,7 @@ hand_card.rs
 
 https://github.com/user-attachments/assets/124294e4-1d45-40a7-8c49-8dcf29eaf198
 
+zone.rs
 
 
 # 版本
