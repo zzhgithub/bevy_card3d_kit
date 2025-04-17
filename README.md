@@ -69,7 +69,7 @@ hand_card.rs
 https://github.com/user-attachments/assets/124294e4-1d45-40a7-8c49-8dcf29eaf198
 
 zone.rs
-
+![](doc/zone.png)
 
 # 版本
 
