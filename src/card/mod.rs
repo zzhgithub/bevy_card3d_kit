@@ -15,7 +15,9 @@ pub mod event;
 pub mod hand_card;
 pub mod move_card;
 
+#[deprecated]
 /// 生成一个Card实体
+/// 不再使用的方法 请使使用数据驱动的方式
 pub fn spawn_card<T: Bundle>(
     commands: &mut Commands,
     materials: &mut ResMut<Assets<StandardMaterial>>,

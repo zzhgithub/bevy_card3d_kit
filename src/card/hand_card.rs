@@ -156,7 +156,7 @@ pub fn change_hand_cards(
                 list.sort_by(|a, b| a.1.translation.x.partial_cmp(&b.1.translation.x).unwrap());
 
                 list.iter_mut().enumerate().for_each(
-                    |(index, &mut (ref mut entity, ref mut transform, ref mut card))| {
+                    |(index, &mut (ref mut _entity, ref mut transform, ref mut card))| {
                         let target = AnimationTarget.into_target();
                         let mut start = target.transform_state(transform.clone());
                         if let Some(tr_end) = hand_positions.get(index) {

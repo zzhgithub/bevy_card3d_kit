@@ -1,6 +1,7 @@
 use crate::prelude::card_namer::CardNamerPlugin;
 use crate::prelude::{HandCardPlane, HandCardPlugin};
 use crate::tween::ExtTweenPlugins;
+use crate::zone::ZonePlugin;
 use bevy::prelude::*;
 use bevy_tween::DefaultTweenPlugins;
 use std::marker::PhantomData;
@@ -26,7 +27,6 @@ impl Default for Card3DConfig {
 
 /// 主要的插件
 pub struct Card3DPlugins;
-
 impl Plugin for Card3DPlugins {
     fn build(&self, app: &mut App) {
         app.add_plugins((
@@ -38,6 +38,7 @@ impl Plugin for Card3DPlugins {
             crate::prelude::MoveCardPlugin::<HandCardPlane> {
                 _phantom: PhantomData,
             },
+            ZonePlugin,
         ))
         .init_resource::<Card3DConfig>();
     }

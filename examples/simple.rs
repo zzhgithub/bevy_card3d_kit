@@ -1,9 +1,14 @@
+mod helpers;
+
 use bevy::prelude::*;
-use bevy_card3d_kit::prelude::{Card3DConfig, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera, spawn_card};
+use bevy_card3d_kit::prelude::{
+    Card, Card3DPlugins, CardMaterialGetter, HAND_CARD_LEVEL, SharkCamera, bind_card_render,
+};
+use helpers::*;
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, Card3DPlugins))
+        .add_plugins((DefaultPlugins, Card3DPlugins, SimplePlugin))
         // .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
         .add_systems(Update, rotate_entities)
@@ -14,13 +19,7 @@ fn main() {
 pub struct Rotating;
 
 // 初始化方法
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    card3d_config: Res<Card3DConfig>,
-    asset_server: Res<AssetServer>,
-) {
+fn setup(mut commands: Commands) {
     // 相机
     commands.spawn((
         SharkCamera,
@@ -36,19 +35,15 @@ fn setup(
         },
         Transform::from_xyz(0.0, 0.0, 10.0),
     ));
-
-    let face_image = asset_server.load(format!("cards/{}.png", "NAAI-A-001"));
-    let back_image = asset_server.load(format!("cards/{}.png", "back"));
-    spawn_card(
-        &mut commands,
-        &mut materials,
-        &mut meshes,
-        face_image.clone(),
-        back_image.clone(),
-        Transform::from_xyz(0.0, 0.0, HAND_CARD_LEVEL),
-        card3d_config.clone(),
+    commands.spawn((
         Rotating,
-    );
+        CardInfo {
+            name: "NAAI-A-001".to_string(),
+        },
+        Card {
+            origin: Transform::from_xyz(0.0, 0.0, HAND_CARD_LEVEL),
+        },
+    ));
 }
 
 fn rotate_entities(time: Res<Time>, mut query: Query<&mut Transform, With<Rotating>>) {

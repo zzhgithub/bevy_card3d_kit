@@ -1,6 +1,7 @@
 # Bevy Card3d Kit
 
 # 使用方法
+1. 引入插件
 ```rust
 fn main() {
     App::new()
@@ -14,13 +15,59 @@ fn main() {
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    card3d_config: Res<Card3DConfig>,
-    asset_server: Res<AssetServer>,
-) {
+```
+
+2. 建立数据类型 并实现正反面的方法
+
+```rust
+#[derive(Component, Clone)]
+pub struct CardInfo {
+    pub name: String,
+}
+
+impl CardMaterialGetter for CardInfo {
+    fn get_face_mal(
+        &self,
+        materials: &mut ResMut<Assets<StandardMaterial>>,
+        asset_server: &Res<AssetServer>,
+    ) -> Handle<StandardMaterial> {
+        materials.add(StandardMaterial {
+            base_color: Color::WHITE,
+            unlit: true,
+            base_color_texture: Some(asset_server.load(format!("cards/{}.png", self.name))),
+            alpha_mode: AlphaMode::Blend,
+            ..Default::default()
+        })
+    }
+
+    fn get_back_mal(
+        &self,
+        materials: &mut ResMut<Assets<StandardMaterial>>,
+        asset_server: &Res<AssetServer>,
+    ) -> Handle<StandardMaterial> {
+        materials.add(StandardMaterial {
+            base_color: Color::WHITE,
+            unlit: true,
+            base_color_texture: Some(asset_server.load(format!("cards/{}.png", "back"))),
+            alpha_mode: AlphaMode::Blend,
+            ..Default::default()
+        })
+    }
+}
+
+
+pub struct SimplePlugin;
+
+impl Plugin for SimplePlugin {
+    fn build(&self, app: &mut App) {
+        bind_card_render::<CardInfo>(app);
+    }
+}
+```
+
+3. 之后即可使用
+```rust
+fn setup(mut commands: Commands) {
     // 相机
     commands.spawn((
         SharkCamera,
@@ -36,23 +83,18 @@ fn setup(
         },
         Transform::from_xyz(0.0, 0.0, 10.0),
     ));
-
-    let face_image = asset_server.load(format!("cards/{}.png", "NAAI-A-001"));
-    let back_image = asset_server.load(format!("cards/{}.png", "back"));
-    
-    // 可以使用这个创建卡片实体了！
-    spawn_card(
-        &mut commands,
-        &mut materials,
-        &mut meshes,
-        face_image.clone(),
-        back_image.clone(),
-        Transform::from_xyz(0.0, 0.0, HAND_CARD_LEVEL),
-        card3d_config.clone(),
+    commands.spawn((
         Rotating,
-    );
-    }
+        CardInfo {
+            name: "NAAI-A-001".to_string(),
+        },
+        Card {
+            origin: Transform::from_xyz(0.0, 0.0, HAND_CARD_LEVEL),
+        },
+    ));
+}
 ```
+
 # 示例
 | example   | desc |
 |-----------|------|

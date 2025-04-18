@@ -1,3 +1,7 @@
+pub mod events;
+
+use crate::prelude::Card;
+use crate::zone::events::CardOnZone;
 use bevy::app::App;
 use bevy::asset::Handle;
 use bevy::pbr::StandardMaterial;
@@ -7,7 +11,7 @@ pub struct ZonePlugin;
 
 impl Plugin for ZonePlugin {
     fn build(&self, app: &mut App) {
-        // 初始化 场地相关代码
+        app.add_observer(deal_drop_card_on_zone);
     }
 }
 
@@ -63,4 +67,20 @@ pub fn render_zone<T: Component + Clone + ZoneMaterialGetter>(
                 ));
             }
         });
+}
+
+pub fn deal_drop_card_on_zone(
+    drag_drop: Trigger<Pointer<DragDrop>>,
+    query_card: Query<Entity, With<Card>>,
+    query_zone: Query<Entity, (With<Zone>, Without<Card>)>,
+    mut commands: Commands,
+) {
+    if let Ok(zone_entity) = query_zone.get(drag_drop.target) {
+        if let Ok(card_entity) = query_card.get(drag_drop.dropped) {
+            commands.trigger(CardOnZone {
+                card: card_entity,
+                zone: zone_entity,
+            });
+        }
+    }
 }
