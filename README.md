@@ -1,7 +1,9 @@
 # Bevy Card3d Kit
 
 # 使用方法
+
 1. 引入插件
+
 ```rust
 fn main() {
     App::new()
@@ -66,6 +68,7 @@ impl Plugin for SimplePlugin {
 ```
 
 3. 之后即可使用
+
 ```rust
 fn setup(mut commands: Commands) {
     // 相机
@@ -96,11 +99,13 @@ fn setup(mut commands: Commands) {
 ```
 
 # 示例
-| example   | desc |
-|-----------|------|
-| simple    | 基础使用 |
-| hand_card | 手牌   |
-| zone      | 场地基础 |
+
+| example      | desc        |
+|--------------|-------------|
+| simple       | 基础使用        |
+| hand_card    | 手牌          |
+| zone         | 场地基础        |
+| card_on_zone | 卡片放置到不同的场地上 |
 
 simple.rs
 

@@ -1,11 +1,11 @@
 use crate::prelude::event::DeclareDraggingDoneForCard;
 use crate::prelude::{Card, Dragged};
 use crate::tween::animation::play_card_going_back_to_place_animation;
+use crate::tween::clear_on_finish::ClearOnFinishExt;
 use bevy::app::App;
 use bevy::prelude::*;
 use bevy_tween::prelude::TweenEvent;
 use std::marker::PhantomData;
-use crate::tween::clear_on_finish::ClearOnFinishExt;
 
 /// 可以被移动的
 #[derive(Component, Copy, Clone)]
@@ -73,12 +73,18 @@ fn on_drag_start(
     // 可以被‘移动’的‘卡片’
     mut card_transforms: Query<(&mut Transform, &Card), (With<Card>, With<Moveable>)>,
     mut commands: Commands,
+    query: Query<&Children>,
 ) {
     if let Ok((_card_transform, _card)) = card_transforms.get_mut(drag_start.entity()) {
         if let Some(mut entity_commands) = commands.get_entity(drag_start.entity()) {
-            entity_commands
-                .insert(Dragged::Actively)
-                .insert(PickingBehavior::IGNORE);
+            info!("drag start");
+            entity_commands.insert(Dragged::Actively);
+        }
+
+        if let Ok(children) = query.get(drag_start.entity()) {
+            for &child in children.iter() {
+                commands.entity(child).insert(PickingBehavior::IGNORE);
+            }
         }
     }
 }
@@ -87,10 +93,17 @@ fn back_to_origin_when_unused(
     drag_end: Trigger<Pointer<DragEnd>>,
     mut dragged_cards: Query<(&mut Transform, Entity, &Card, &mut Dragged, &Name)>,
     mut commands: Commands,
+    query: Query<&Children>,
 ) {
     if let Ok((card_transform, card_entity, card, mut card_dragged_component, card_name)) =
         dragged_cards.get_mut(drag_end.entity())
     {
+        if let Ok(children) = query.get(drag_end.entity()) {
+            for &child in children.iter() {
+                commands.entity(child).remove::<PickingBehavior>();
+            }
+        }
+        info!("drag end");
         *card_dragged_component = Dragged::GoingBackToPlace;
         // 进行动画
         play_card_going_back_to_place_animation(

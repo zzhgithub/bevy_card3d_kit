@@ -93,9 +93,8 @@ pub fn on_hover(
     >,
 ) {
     if let Ok(parent) = query.get(over_trigger.target) {
-        info!("hover target {:?}",over_trigger.target);
         if let Ok((card_transform, _card, card_name)) = query_transform.get(parent.get()) {
-            info!("hand card on hovered {}", card_name);
+            debug!("hand card on hovered {}", card_name);
             let target = parent.get().into_target();
             let mut start = target.transform_state(card_transform.clone());
             let mut end = card_transform.clone().translation;
@@ -125,7 +124,7 @@ pub fn on_hover_cancel(
 ) {
     if let Ok(parent) = query.get(out_trigger.target) {
         if let Ok((card_transform, card, card_name)) = query_transform.get(parent.get()) {
-            info!("hand card on out {}", card_name);
+            debug!("hand card on out {}", card_name);
             play_card_going_back_to_place_animation(
                 parent.get(),
                 card,

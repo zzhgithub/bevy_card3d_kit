@@ -11,7 +11,7 @@ pub struct ZonePlugin;
 
 impl Plugin for ZonePlugin {
     fn build(&self, app: &mut App) {
-        app.add_observer(deal_drop_card_on_zone);
+        // todo
     }
 }
 
@@ -56,15 +56,17 @@ pub fn render_zone<T: Component + Clone + ZoneMaterialGetter>(
         ))
         .with_children(|parent| {
             for zone_builder in zone_builder_vec {
-                parent.spawn((
-                    Zone {
-                        center: zone_builder.center.clone(),
-                    },
-                    zone_builder.clone().zone_type,
-                    Mesh3d(meshes.add(Rectangle::from_size(zone_builder.size))),
-                    zone_builder.center,
-                    MeshMaterial3d(zone_builder.clone().zone_type.get_mal(&mut materials)),
-                ));
+                parent
+                    .spawn((
+                        Zone {
+                            center: zone_builder.center.clone(),
+                        },
+                        zone_builder.clone().zone_type,
+                        Mesh3d(meshes.add(Rectangle::from_size(zone_builder.size))),
+                        zone_builder.center,
+                        MeshMaterial3d(zone_builder.clone().zone_type.get_mal(&mut materials)),
+                    ))
+                    .observe(deal_drop_card_on_zone);
             }
         });
 }
@@ -73,14 +75,18 @@ pub fn deal_drop_card_on_zone(
     drag_drop: Trigger<Pointer<DragDrop>>,
     query_card: Query<Entity, With<Card>>,
     query_zone: Query<Entity, (With<Zone>, Without<Card>)>,
+    query: Query<&Parent>,
     mut commands: Commands,
 ) {
+    debug!("Drag drop: {:?}", drag_drop);
     if let Ok(zone_entity) = query_zone.get(drag_drop.target) {
-        if let Ok(card_entity) = query_card.get(drag_drop.dropped) {
-            commands.trigger(CardOnZone {
-                card: card_entity,
-                zone: zone_entity,
-            });
+        if let Ok(parent) = query.get(drag_drop.dropped) {
+            if let Ok(card_entity) = query_card.get(parent.get()) {
+                commands.trigger(CardOnZone {
+                    card: card_entity,
+                    zone: zone_entity,
+                });
+            }
         }
     }
 }

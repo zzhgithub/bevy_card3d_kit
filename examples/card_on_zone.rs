@@ -1,13 +1,23 @@
+mod helpers;
+
+use crate::helpers::{CardInfo, SimplePlugin};
 use bevy::DefaultPlugins;
 use bevy::app::{App, Startup};
+use bevy::color::palettes::css::{GREEN, RED};
 use bevy::prelude::*;
-use bevy_card3d_kit::prelude::{Card3DPlugins, SharkCamera};
+use bevy_card3d_kit::prelude::{
+    Card, Card3DPlugins, Dragged, HAND_CARD_LEVEL, Moveable, SharkCamera,
+};
+use bevy_card3d_kit::zone::events::CardOnZone;
+use bevy_card3d_kit::zone::{ZoneBuilder, ZoneMaterialGetter, render_zone};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, Card3DPlugins))
-        // .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins((DefaultPlugins, Card3DPlugins, SimplePlugin))
+        .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
+        .add_observer(card_on_zone)
         .run();
 }
 
@@ -32,6 +42,69 @@ fn setup(
         Transform::from_xyz(0.0, 0.0, 10.0),
     ));
 
-    // todo
+    render_zone(
+        &mut commands,
+        &mut meshes,
+        &mut materials,
+        Transform::from_xyz(0.0, 0.0, 0.0),
+        vec![
+            ZoneBuilder {
+                size: Vec2::new(5.0, 5.0),
+                center: Transform::from_xyz(-3.0, 0.0, 0.0),
+                zone_type: ConditionZone::CanSet,
+            },
+            ZoneBuilder {
+                size: Vec2::new(5.0, 5.0),
+                center: Transform::from_xyz(3.0, 0.0, 0.0),
+                zone_type: ConditionZone::NotCanSet,
+            },
+        ],
+    );
+
+    commands.spawn((
+        Card {
+            origin: Transform::from_xyz(0.0, -4.5, HAND_CARD_LEVEL),
+        },
+        CardInfo {
+            name: "S001-A-001".to_string(),
+        },
+        Moveable,
+    ));
 }
 
+fn card_on_zone(
+    card_on_zone: Trigger<CardOnZone>,
+    mut commands: Commands,
+    query: Query<&ConditionZone>,
+) {
+    info!("{:?}", card_on_zone.clone());
+    if let Ok(zone) = query.get(card_on_zone.zone) {
+        match zone {
+            ConditionZone::CanSet => {
+                commands.entity(card_on_zone.card).remove::<Dragged>();
+            }
+            ConditionZone::NotCanSet => {
+                info!("Not CanSet");
+            }
+        }
+    };
+}
+
+#[derive(Debug, Clone, Default, Component)]
+enum ConditionZone {
+    #[default]
+    CanSet,
+    NotCanSet,
+}
+
+impl ZoneMaterialGetter for ConditionZone {
+    fn get_mal(
+        &self,
+        materials: &mut ResMut<Assets<StandardMaterial>>,
+    ) -> Handle<StandardMaterial> {
+        match self {
+            ConditionZone::CanSet => materials.add(Color::Srgba(GREEN)),
+            ConditionZone::NotCanSet => materials.add(Color::Srgba(RED)),
+        }
+    }
+}
