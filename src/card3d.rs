@@ -1,5 +1,6 @@
 use crate::prelude::card_namer::CardNamerPlugin;
 use crate::prelude::{HandCardPlane, HandCardPlugin};
+use crate::preview_plugins::PreviewPlugins;
 use crate::tween::ExtTweenPlugins;
 use crate::zone::ZonePlugin;
 use bevy::prelude::*;
@@ -41,5 +42,7 @@ impl Plugin for Card3DPlugins {
             ZonePlugin,
         ))
         .init_resource::<Card3DConfig>();
+        #[cfg(feature = "image_preview")]
+        app.add_plugins(PreviewPlugins);
     }
 }

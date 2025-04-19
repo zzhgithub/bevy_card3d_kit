@@ -2,6 +2,7 @@ mod card;
 mod card3d;
 pub mod tween;
 pub mod zone;
+pub mod preview_plugins;
 
 pub mod prelude {
     pub use crate::card::core::*;

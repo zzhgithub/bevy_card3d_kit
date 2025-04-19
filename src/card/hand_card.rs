@@ -1,4 +1,3 @@
-use crate::prelude::ClearOnFinishExt;
 use crate::prelude::{Card, Dragged, Moveable};
 use crate::tween::animation::play_card_going_back_to_place_animation;
 use bevy::math::ops::{cos, sin};

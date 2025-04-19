@@ -4,12 +4,17 @@ version = "0.1.0"
 edition = "2024"
 description = "a lib for put and use Card in 3d"
 categories = ["game-development"]
-homepage = ""
-repository = ""
+homepage = "https://github.com/zzhgithub/bevy_card3d_kit"
+repository = "https://github.com/zzhgithub/bevy_card3d_kit"
 
 
 [workspace]
 resolver = "2"
+
+[features]
+default = []
+image_preview = []
+
 
 [dependencies]
 bevy = { version = "0.15.0", default-features = false }
@@ -33,7 +38,8 @@ features = [
     "tonemapping_luts",
     "png",
     "bevy_picking",
-    "bevy_mesh_picking_backend"
+    "bevy_mesh_picking_backend",
+    "bevy_state"
 ]
 
 [[example]]
@@ -57,3 +63,8 @@ path = "examples/card_on_zone.rs"
 [[example]]
 name = "card_on_card"
 path = "examples/card_on_card.rs"
+
+[[example]]
+name = "card_preview"
+path = "examples/card_preview.rs"
+required-features = ["image_preview"]

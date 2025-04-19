@@ -1,5 +1,8 @@
 use crate::card::card_mesh::gen_card_mesh_list;
 use crate::card3d::Card3DConfig;
+#[cfg(feature = "image_preview")]
+use crate::preview_plugins::ImagePreview;
+use crate::preview_plugins::preview_on_click;
 use crate::zone::events::{CardOnCard, CardOnZone};
 use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
@@ -34,6 +37,9 @@ pub trait CardMaterialGetter {
         materials: &mut ResMut<Assets<StandardMaterial>>,
         asset_server: &Res<AssetServer>,
     ) -> Handle<StandardMaterial>;
+
+    #[cfg(feature = "image_preview")]
+    fn get_id(&self) -> String;
 }
 // 加载绑定 特定数据类型的卡片
 pub fn bind_card_render<T>(app: &mut App)
@@ -96,6 +102,11 @@ fn render_added_card<T>(
                         .observe(deal_drop_card_on_zone);
                 }
             });
+        #[cfg(feature = "image_preview")]
+        commands
+            .entity(card_entity)
+            .insert(ImagePreview(t.get_id()))
+            .observe(preview_on_click);
     }
 }
 

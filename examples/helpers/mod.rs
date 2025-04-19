@@ -2,7 +2,7 @@ use bevy::asset::{AssetServer, Assets, Handle};
 use bevy::color::Color;
 use bevy::pbr::StandardMaterial;
 use bevy::prelude::*;
-use bevy_card3d_kit::prelude::{bind_card_render, CardMaterialGetter};
+use bevy_card3d_kit::prelude::{CardMaterialGetter, bind_card_render};
 
 #[derive(Component, Clone)]
 pub struct CardInfo {
@@ -37,8 +37,12 @@ impl CardMaterialGetter for CardInfo {
             ..Default::default()
         })
     }
-}
 
+    #[cfg(feature = "image_preview")]
+    fn get_id(&self) -> String {
+        self.name.clone()
+    }
+}
 
 pub struct SimplePlugin;
 
