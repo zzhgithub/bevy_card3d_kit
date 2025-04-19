@@ -16,7 +16,9 @@ resolver = "2"
 
 [features]
 default = []
-image_preview = []
+image_preview = [
+    "bevy/bevy_state"
+]
 
 
 [dependencies]
