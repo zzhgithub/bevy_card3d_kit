@@ -103,8 +103,9 @@ pub fn on_hover(
             commands
                 .spawn((Name::new(format!("hand card on hovered {}", card_name)),))
                 .animation()
+                .clear_on_finish()
                 .insert_tween_here(
-                    Duration::from_secs_f32(1.1),
+                    Duration::from_secs_f32(0.01),
                     EaseKind::ExponentialOut,
                     start.translation_to(end),
                 );

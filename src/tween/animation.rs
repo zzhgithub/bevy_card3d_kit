@@ -1,5 +1,5 @@
-use crate::prelude::Card;
 use crate::prelude::event::DeclareDraggingDoneForCard;
+use crate::prelude::{Card, ClearOnFinishExt};
 use bevy::core::Name;
 use bevy::prelude::{Commands, Entity, Transform};
 use bevy_tween::combinator::{event, parallel, sequence, tween};
@@ -23,20 +23,21 @@ pub fn play_card_going_back_to_place_animation(
             card_name
         )),))
         .animation()
+        .clear_on_finish()
         .insert(sequence((
             parallel((
                 tween(
-                    Duration::from_secs_f32(1.1),
+                    Duration::from_secs_f32(0.04),
                     EaseKind::ExponentialOut,
                     transform_state.translation_to(card.origin.translation),
                 ),
                 tween(
-                    Duration::from_secs_f32(1.1),
+                    Duration::from_secs_f32(0.04),
                     EaseKind::ExponentialOut,
                     transform_state.rotation_to(card.origin.rotation),
                 ),
                 tween(
-                    Duration::from_secs_f32(1.1),
+                    Duration::from_secs_f32(0.04),
                     EaseKind::ExponentialOut,
                     transform_state.scale_to(card.origin.scale),
                 ),

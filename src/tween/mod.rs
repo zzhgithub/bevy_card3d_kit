@@ -1,4 +1,5 @@
 use crate::card::event::CardsEventsPlugin;
+use crate::prelude::ClearOnFinishExt;
 use crate::tween::base_color::{BaseColor, basic_color};
 use crate::tween::clear_on_finish::clear_on_finish_system;
 use crate::tween::shark::{SharkCamera, custom_interpolators_plugin, effect_intensity};
@@ -65,6 +66,7 @@ fn effect_system(
                     AnimationTarget,
                 ))
                 .animation()
+                .clear_on_finish()
                 .insert_tween_here(
                     Duration::from_secs_f32(0.2),
                     EaseKind::Linear,
@@ -96,6 +98,7 @@ fn effect_system(
                     AnimationTarget,
                 ))
                 .animation()
+                .clear_on_finish()
                 .insert_tween_here(
                     Duration::from_secs_f32(1.0),
                     EaseKind::QuadraticOut,
@@ -114,6 +117,7 @@ fn effect_system(
                     .entity(entity)
                     .insert(AnimationTarget)
                     .animation()
+                    .clear_on_finish()
                     .insert(sequence((
                         tween(
                             Duration::from_secs_f32(0.2),
