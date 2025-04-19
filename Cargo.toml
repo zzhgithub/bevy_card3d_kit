@@ -15,7 +15,7 @@ exclude = ["doc/*"]
 resolver = "2"
 
 [features]
-default = []
+default = ["bevy/bevy_pbr"]
 image_preview = [
     "bevy/bevy_state"
 ]
