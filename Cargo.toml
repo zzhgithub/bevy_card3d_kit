@@ -53,3 +53,7 @@ path = "examples/zone.rs"
 [[example]]
 name = "card_on_zone"
 path = "examples/card_on_zone.rs"
+
+[[example]]
+name = "card_on_card"
+path = "examples/card_on_card.rs"

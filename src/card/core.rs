@@ -1,5 +1,7 @@
 use crate::card::card_mesh::gen_card_mesh_list;
 use crate::card3d::Card3DConfig;
+use crate::zone::Zone;
+use crate::zone::events::{CardOnCard, CardOnZone};
 use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
 
@@ -76,20 +78,45 @@ fn render_added_card<T>(
                 }
                 // 加载内容
                 for (mesh_handle, trans) in mesh_list.clone().1 {
-                    parent.spawn((
-                        Mesh3d(mesh_handle.clone()),
-                        trans.clone(),
-                        MeshMaterial3d(t.get_face_mal(&mut materials, &asset_server)),
-                    ));
+                    parent
+                        .spawn((
+                            Mesh3d(mesh_handle.clone()),
+                            trans.clone(),
+                            MeshMaterial3d(t.get_face_mal(&mut materials, &asset_server)),
+                        ))
+                        .observe(deal_drop_card_on_zone);
                 }
                 // 背面
                 for (mesh_handle, trans) in mesh_list.clone().2 {
-                    parent.spawn((
-                        Mesh3d(mesh_handle.clone()),
-                        trans.clone(),
-                        MeshMaterial3d(t.get_back_mal(&mut materials, &asset_server)),
-                    ));
+                    parent
+                        .spawn((
+                            Mesh3d(mesh_handle.clone()),
+                            trans.clone(),
+                            MeshMaterial3d(t.get_back_mal(&mut materials, &asset_server)),
+                        ))
+                        .observe(deal_drop_card_on_zone);
                 }
             });
+    }
+}
+
+pub fn deal_drop_card_on_zone(
+    drag_drop: Trigger<Pointer<DragDrop>>,
+    query_card: Query<Entity, With<Card>>,
+    query: Query<&Parent>,
+    mut commands: Commands,
+) {
+    debug!("Drag drop: {:?}", drag_drop);
+    if let Ok(card_bottom) = query.get(drag_drop.target) {
+        if let Ok(card_bottom_entity) = query_card.get(card_bottom.get()) {
+            if let Ok(parent) = query.get(drag_drop.dropped) {
+                if let Ok(card_top_entity) = query_card.get(parent.get()) {
+                    commands.trigger(CardOnCard {
+                        bottom_card: card_bottom_entity,
+                        top_card: card_top_entity,
+                    });
+                }
+            }
+        }
     }
 }

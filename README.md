@@ -106,6 +106,7 @@ fn setup(mut commands: Commands) {
 | hand_card    | 手牌          |
 | zone         | 场地基础        |
 | card_on_zone | 卡片放置到不同的场地上 |
+| card_on_card | 卡片放到卡片上     |
 
 simple.rs
 
