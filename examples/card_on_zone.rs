@@ -76,12 +76,18 @@ fn card_on_zone(
     card_on_zone: Trigger<CardOnZone>,
     mut commands: Commands,
     query: Query<&ConditionZone>,
+    query_childern: Query<&Children>,
 ) {
     info!("{:?}", card_on_zone.clone());
     if let Ok(zone) = query.get(card_on_zone.zone) {
         match zone {
             ConditionZone::CanSet => {
                 commands.entity(card_on_zone.card).remove::<Dragged>();
+                if let Ok(children) = query_childern.get(card_on_zone.card) {
+                    for &child in children.iter() {
+                        commands.entity(child).remove::<PickingBehavior>();
+                    }
+                }
             }
             ConditionZone::NotCanSet => {
                 info!("Not CanSet");

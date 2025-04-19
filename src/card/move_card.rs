@@ -77,7 +77,7 @@ fn on_drag_start(
 ) {
     if let Ok((_card_transform, _card)) = card_transforms.get_mut(drag_start.entity()) {
         if let Some(mut entity_commands) = commands.get_entity(drag_start.entity()) {
-            info!("drag start");
+            // info!("drag start");
             entity_commands.insert(Dragged::Actively);
         }
 
@@ -95,15 +95,17 @@ fn back_to_origin_when_unused(
     mut commands: Commands,
     query: Query<&Children>,
 ) {
+    debug!("drag end {:?}", drag_end.target);
+    debug!("drag end {:?}", drag_end.entity());
     if let Ok((card_transform, card_entity, card, mut card_dragged_component, card_name)) =
         dragged_cards.get_mut(drag_end.entity())
     {
+        debug!("drag end!!!");
         if let Ok(children) = query.get(drag_end.entity()) {
             for &child in children.iter() {
                 commands.entity(child).remove::<PickingBehavior>();
             }
         }
-        info!("drag end");
         *card_dragged_component = Dragged::GoingBackToPlace;
         // 进行动画
         play_card_going_back_to_place_animation(
@@ -118,13 +120,20 @@ fn back_to_origin_when_unused(
 
 fn listen_to_dragging_done_for_card(
     trigger: Trigger<TweenEvent<DeclareDraggingDoneForCard>>,
-    cards: Query<(), With<Card>>,
+    cards: Query<&Dragged, With<Card>>,
     mut commands: Commands,
 ) {
     if let Some(entity) = trigger.data.card_entity {
-        if let Ok(_card) = cards.get(entity) {
+        if let Ok(dragged) = cards.get(entity) {
             if let Some(mut entity_commands) = commands.get_entity(entity) {
-                entity_commands.remove::<Dragged>();
+                match dragged {
+                    Dragged::Actively => {
+                        // do nothing!
+                    }
+                    Dragged::GoingBackToPlace => {
+                        entity_commands.remove::<Dragged>();
+                    }
+                }
             }
         }
     }

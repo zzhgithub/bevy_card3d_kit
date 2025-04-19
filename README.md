@@ -118,6 +118,10 @@ https://github.com/user-attachments/assets/124294e4-1d45-40a7-8c49-8dcf29eaf198
 zone.rs
 ![](doc/zone.png)
 
+card_on_zone.rs 简单的实例 拖拽到不同的位置进行不同的处理。
+
+https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
+
 # 版本
 
 # 鸣谢
