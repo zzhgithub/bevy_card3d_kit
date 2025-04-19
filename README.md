@@ -126,4 +126,12 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 
 # 版本
 
+| bevy | bevy_card3d_kit |
+|------|-----------------|
+| 0.15 | 0.1.0           |
+
 # 鸣谢
+感谢 Wechat群Bevy引擎学习交流
+感谢 Rabbival 和它的仓库 bevy_play_card
+如果你要开发2d的卡片游戏可以参考他的项目
+https://github.com/Rabbival/bevy_play_card
