@@ -8,8 +8,9 @@ use bevy::prelude::*;
 use bevy_card3d_kit::prelude::{
     Card, Card3DPlugins, Dragged, HAND_CARD_LEVEL, Moveable, SharkCamera,
 };
+use bevy_card3d_kit::tween::animation::card_set_on_zone_animation;
 use bevy_card3d_kit::zone::events::CardOnZone;
-use bevy_card3d_kit::zone::{ZoneBuilder, ZoneMaterialGetter, render_zone};
+use bevy_card3d_kit::zone::{Zone, ZoneBuilder, ZoneMaterialGetter, render_zone};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() {
@@ -77,6 +78,8 @@ fn card_on_zone(
     mut commands: Commands,
     query: Query<&ConditionZone>,
     query_children: Query<&Children>,
+    mut query_card: Query<(&mut Card, &Name, &Transform)>,
+    query_zone: Query<&Zone>,
 ) {
     info!("{:?}", card_on_zone.clone());
     if let Ok(zone) = query.get(card_on_zone.zone) {
@@ -86,6 +89,20 @@ fn card_on_zone(
                 if let Ok(children) = query_children.get(card_on_zone.card) {
                     for &child in children.iter() {
                         commands.entity(child).remove::<PickingBehavior>();
+                    }
+                }
+                if let Ok((card, card_name, card_transform)) =
+                    query_card.get_mut(card_on_zone.card)
+                {
+                    if let Ok(zone) = query_zone.get(card_on_zone.zone) {
+                        card_set_on_zone_animation(
+                            card_on_zone.card,
+                            &card,
+                            &zone,
+                            card_transform,
+                            card_name,
+                            &mut commands,
+                        );
                     }
                 }
             }

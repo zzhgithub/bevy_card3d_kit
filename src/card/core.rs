@@ -1,6 +1,5 @@
 use crate::card::card_mesh::gen_card_mesh_list;
 use crate::card3d::Card3DConfig;
-use crate::zone::Zone;
 use crate::zone::events::{CardOnCard, CardOnZone};
 use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;

@@ -1,7 +1,6 @@
 use crate::prelude::event::DeclareDraggingDoneForCard;
 use crate::prelude::{Card, Dragged};
 use crate::tween::animation::play_card_going_back_to_place_animation;
-use crate::tween::clear_on_finish::ClearOnFinishExt;
 use bevy::app::App;
 use bevy::prelude::*;
 use bevy_tween::prelude::TweenEvent;

@@ -1,5 +1,5 @@
-use crate::card::event::CardsEventsPlugin;
-use crate::prelude::ClearOnFinishExt;
+use crate::card::event::{CardsEventsPlugin, DeclareDraggingDoneForCard};
+use crate::prelude::{Card, ClearOnFinishExt, Dragged};
 use crate::tween::base_color::{BaseColor, basic_color};
 use crate::tween::clear_on_finish::clear_on_finish_system;
 use crate::tween::shark::{SharkCamera, custom_interpolators_plugin, effect_intensity};
@@ -11,7 +11,9 @@ use bevy_tween::interpolate::scale;
 use bevy_tween::interpolation::EaseKind;
 use bevy_tween::prelude::{AssetTween, IntoTarget, TweenEvent};
 use bevy_tween::tween::AnimationTarget;
+use bevy_tween::tween_event::TweenEventPlugin;
 use bevy_tween::{BevyTweenRegisterSystems, asset_tween_system};
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
 pub mod animation;
@@ -24,6 +26,7 @@ pub struct ExtTweenPlugins;
 impl Plugin for ExtTweenPlugins {
     fn build(&self, app: &mut App) {
         app.add_plugins(CardsEventsPlugin);
+        app.add_plugins(TweenEventPlugin::<DespawnEntityAfterAll>::default());
         // 在动画执行后 删除原来的动画实体
         app.add_systems(Update, (clear_on_finish_system, despawn_done_time_runners));
         // 导入3d的Color变化
@@ -32,7 +35,8 @@ impl Plugin for ExtTweenPlugins {
         // 镜头震动相关
         custom_interpolators_plugin::<SharkCamera>(app);
         // 通用tween 事件效果 和 创建effect 实体删除
-        app.add_systems(Update, (effect_system, despawn_effect_system));
+        app.add_systems(Update, effect_system);
+        app.add_observer(listen_to_despawn_events);
     }
 }
 
@@ -56,8 +60,7 @@ fn effect_system(
             });
             let target = handle.clone().into_target();
 
-            let entity = AnimationTarget.into_target();
-            commands
+            let entity_effect = commands
                 .spawn((
                     Effect,
                     Mesh3d(meshes.add(Annulus::new(2.6, 3.0))),
@@ -65,19 +68,28 @@ fn effect_system(
                     Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
                     AnimationTarget,
                 ))
+                .id();
+            let entity = entity_effect.into_target();
+            commands
+                .spawn(Name::new("small_boom"))
                 .animation()
                 .clear_on_finish()
-                .insert_tween_here(
-                    Duration::from_secs_f32(0.2),
-                    EaseKind::Linear,
-                    (
-                        entity.with(scale(Vec3::new(0.6, 0.6, 0.), Vec3::new(3., 3., 0.))),
-                        target.with(basic_color(
-                            into_color(WHITE.with_alpha(0.5)),
-                            into_color(YELLOW.with_alpha(0.)),
-                        )),
+                .insert(sequence((
+                    tween(
+                        Duration::from_secs_f32(0.2),
+                        EaseKind::Linear,
+                        (
+                            entity.with(scale(Vec3::new(0.6, 0.6, 0.), Vec3::new(3., 3., 0.))),
+                            target.with(basic_color(
+                                into_color(WHITE.with_alpha(0.5)),
+                                into_color(YELLOW.with_alpha(0.)),
+                            )),
+                        ),
                     ),
-                );
+                    bevy_tween::combinator::event(DespawnEntityAfterAll {
+                        entity: Some(entity_effect),
+                    }),
+                )));
         }
         "boom" => {
             info!("Boom!");
@@ -88,8 +100,7 @@ fn effect_system(
             });
             let target = handle.clone().into_target();
 
-            let entity = AnimationTarget.into_target();
-            commands
+            let entity_effect = commands
                 .spawn((
                     Effect,
                     Mesh3d(meshes.add(Annulus::new(2.6, 3.0))),
@@ -97,25 +108,34 @@ fn effect_system(
                     Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
                     AnimationTarget,
                 ))
+                .id();
+            let entity = entity_effect.into_target();
+            commands
+                .spawn(Name::new("boom"))
                 .animation()
                 .clear_on_finish()
-                .insert_tween_here(
-                    Duration::from_secs_f32(1.0),
-                    EaseKind::QuadraticOut,
-                    (
-                        entity.with(scale(Vec3::new(1., 1., 0.), Vec3::new(10., 10., 0.))),
-                        target.with(basic_color(
-                            into_color(WHITE.with_alpha(1.)),
-                            into_color(YELLOW.with_alpha(0.)),
-                        )),
+                .insert(sequence((
+                    tween(
+                        Duration::from_secs_f32(1.0),
+                        EaseKind::QuadraticOut,
+                        (
+                            entity.with(scale(Vec3::new(1., 1., 0.), Vec3::new(10., 10., 0.))),
+                            target.with(basic_color(
+                                into_color(WHITE.with_alpha(1.)),
+                                into_color(YELLOW.with_alpha(0.)),
+                            )),
+                        ),
                     ),
-                );
+                    bevy_tween::combinator::event(DespawnEntityAfterAll {
+                        entity: Some(entity_effect),
+                    }),
+                )));
         }
         "shark" => {
             if let Ok((entity, _trans)) = query.get_single() {
+                commands.entity(entity).insert(AnimationTarget);
                 commands
-                    .entity(entity)
-                    .insert(AnimationTarget)
+                    .spawn(Name::new("shark"))
                     .animation()
                     .clear_on_finish()
                     .insert(sequence((
@@ -136,18 +156,6 @@ fn effect_system(
     });
 }
 
-fn despawn_effect_system(
-    mut commands: Commands,
-    q_effect: Query<(), With<Effect>>,
-    mut ended: EventReader<TimeRunnerEnded>,
-) {
-    ended.read().for_each(|ended| {
-        if ended.is_completed() && q_effect.contains(ended.time_runner) {
-            commands.entity(ended.time_runner).despawn_recursive();
-        }
-    });
-}
-
 pub fn despawn_done_time_runners(
     mut time_runner_ended_reader: EventReader<TimeRunnerEnded>,
     mut commands: Commands,
@@ -161,4 +169,18 @@ pub fn despawn_done_time_runners(
 
 fn into_color<T: Into<bevy::color::Srgba>>(color: T) -> Color {
     Color::Srgba(color.into())
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, Hash, PartialOrd, Default)]
+pub struct DespawnEntityAfterAll {
+    pub entity: Option<Entity>,
+}
+
+fn listen_to_despawn_events(
+    trigger: Trigger<TweenEvent<DespawnEntityAfterAll>>,
+    mut commands: Commands,
+) {
+    if let Some(entity) = trigger.data.entity {
+        commands.entity(entity).despawn_recursive();
+    }
 }

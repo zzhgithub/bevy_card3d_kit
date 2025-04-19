@@ -1,8 +1,9 @@
+use crate::prelude::Card;
 use crate::prelude::event::DeclareDraggingDoneForCard;
-use crate::prelude::{Card, ClearOnFinishExt};
+use crate::zone::Zone;
 use bevy::core::Name;
-use bevy::prelude::{Commands, Entity, Transform};
-use bevy_tween::combinator::{event, parallel, sequence, tween};
+use bevy::prelude::{Commands, Entity, Transform, Vec3};
+use bevy_tween::combinator::{event, event_for, parallel, sequence, tween};
 use bevy_tween::interpolation::EaseKind;
 use bevy_tween::prelude::{AnimationBuilderExt, IntoTarget, TransformTargetStateExt};
 use std::time::Duration;
@@ -23,7 +24,6 @@ pub fn play_card_going_back_to_place_animation(
             card_name
         )),))
         .animation()
-        .clear_on_finish()
         .insert(sequence((
             parallel((
                 tween(
@@ -45,5 +45,56 @@ pub fn play_card_going_back_to_place_animation(
             event(DeclareDraggingDoneForCard {
                 card_entity: Some(card_entity),
             }),
+        )));
+}
+
+pub fn card_set_on_zone_animation(
+    card_entity: Entity,
+    card: &Card,
+    zone: &Zone,
+    card_transform: &Transform,
+    card_name: &Name,
+    commands: &mut Commands,
+) {
+    let animation_target = card_entity.into_target();
+    let mut transform_state = animation_target.transform_state(*card_transform);
+
+    let mut mid = Vec3::ZERO;
+    mid.z = card.origin.translation.z;
+
+    let mut mid2 = Vec3::ZERO;
+    mid2.z = card.origin.translation.z + 7.0;
+
+    let mut mid_state = animation_target.transform_state(Transform::from_translation(mid));
+    let mut mid_state2 = animation_target.transform_state(Transform::from_translation(mid));
+
+    commands
+        .spawn((Name::new(format!("card_set_on_zone-{}", card_name)),))
+        .animation()
+        .insert(sequence((
+            tween(
+                Duration::from_secs_f32(1.0),
+                EaseKind::ExponentialOut,
+                transform_state.translation_to(mid),
+            ),
+            parallel((
+                tween(
+                    Duration::from_secs_f32(1.0),
+                    EaseKind::ExponentialOut,
+                    mid_state.translation_to(mid2),
+                ),
+                sequence((
+                    event_for(Duration::from_secs_f32(0.4), "small_boom"),
+                    event("boom"),
+                )),
+            )),
+            parallel((
+                tween(
+                    Duration::from_secs_f32(0.6),
+                    EaseKind::ExponentialOut,
+                    mid_state2.translation_to(zone.center.translation),
+                ),
+                event("shark"),
+            )),
         )));
 }
