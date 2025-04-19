@@ -2,6 +2,7 @@ mod card;
 mod card3d;
 pub mod tween;
 pub mod zone;
+#[cfg(feature = "image_preview")]
 pub mod preview_plugins;
 
 pub mod prelude {

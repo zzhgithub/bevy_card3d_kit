@@ -1,11 +1,12 @@
 use crate::prelude::card_namer::CardNamerPlugin;
 use crate::prelude::{HandCardPlane, HandCardPlugin};
-use crate::preview_plugins::PreviewPlugins;
 use crate::tween::ExtTweenPlugins;
 use crate::zone::ZonePlugin;
 use bevy::prelude::*;
 use bevy_tween::DefaultTweenPlugins;
 use std::marker::PhantomData;
+#[cfg(feature = "image_preview")]
+use crate::preview_plugins::PreviewPlugins;
 
 #[derive(Resource, Copy, Clone)]
 pub struct Card3DConfig {
