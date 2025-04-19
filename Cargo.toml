@@ -6,6 +6,9 @@ description = "a lib for put and use Card in 3d"
 categories = ["game-development"]
 homepage = "https://github.com/zzhgithub/bevy_card3d_kit"
 repository = "https://github.com/zzhgithub/bevy_card3d_kit"
+authors = ["robzhou 1042181618@qq.com"]
+readme = "README.md"
+exclude = ["doc/*"]
 
 
 [workspace]
