@@ -16,6 +16,7 @@ resolver = "2"
 
 [features]
 default = [
+    "bevy/bevy_window",
     "bevy/bevy_pbr",
     "bevy/bevy_picking",
     "bevy/bevy_mesh_picking_backend"

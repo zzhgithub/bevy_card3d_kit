@@ -2,6 +2,7 @@ use crate::card::card_mesh::gen_card_mesh_list;
 use crate::card3d::Card3DConfig;
 #[cfg(feature = "image_preview")]
 use crate::preview_plugins::ImagePreview;
+#[cfg(feature = "image_preview")]
 use crate::preview_plugins::preview_on_click;
 use crate::zone::events::{CardOnCard, CardOnZone};
 use bevy::prelude::*;
