@@ -15,7 +15,11 @@ exclude = ["doc/*"]
 resolver = "2"
 
 [features]
-default = ["bevy/bevy_pbr"]
+default = [
+    "bevy/bevy_pbr",
+    "bevy/bevy_picking",
+    "bevy/bevy_mesh_picking_backend"
+]
 image_preview = [
     "bevy/bevy_state"
 ]
