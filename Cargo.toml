@@ -9,6 +9,7 @@ repository = "https://github.com/zzhgithub/bevy_card3d_kit"
 authors = ["robzhou 1042181618@qq.com"]
 readme = "README.md"
 exclude = ["doc/*"]
+license = "MIT OR Apache-2.0"
 
 
 [workspace]
