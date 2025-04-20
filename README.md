@@ -1,6 +1,10 @@
 # Bevy Card3d Kit
 
+Notes: 项目实验性内容，版本更新较快。不分特新不兼容。
+
 # 使用方法
+
+### 基本卡片渲染
 
 1. 引入插件
 
@@ -98,17 +102,144 @@ fn setup(mut commands: Commands) {
 }
 ```
 
+### 使用手牌
+
+使用 CardLine组件创建手牌线实体
+然后再手牌上挂载HandCard实体
+
+```rust
+fn setup(mut commands: Commands) {
+    // 相机
+    commands.spawn((
+        SharkCamera,
+        Camera3d::default(),
+        Transform::from_xyz(0., 0., 25.).looking_at(Vec3::ZERO, Vec3::Y),
+    ));
+
+    // 光源
+    commands.spawn((
+        PointLight {
+            shadows_enabled: true,
+            ..default()
+        },
+        Transform::from_xyz(0.0, 0.0, 10.0),
+    ));
+    let card_list = [
+        "NAAI-A-001",
+        "NAAI-A-001",
+        "NAAI-A-001",
+        "S001-A-001",
+        "S001-A-001",
+        // "S001-A-001",
+    ];
+    let card_line_entity = commands
+        .spawn(CardLine {
+            transform: Transform::from_xyz(0.0, -6.7, HAND_CARD_LEVEL),
+            card_list: vec![],
+        })
+        .id();
+
+    // 加载手卡
+    card_list.iter().for_each(|name| {
+        commands.spawn((
+            Card {
+                origin: Transform::default(),
+            },
+            CardInfo {
+                name: name.to_string(),
+            },
+            Moveable,
+            HandCard {
+                belong_to_card_line: Some(card_line_entity),
+            },
+        ));
+    });
+}
+```
+
+## 场地
+
+定义一个场地类型
+
+```rust
+#[derive(Clone, Debug, Component)]
+enum CardZone {
+    TypeA,
+    TypeB,
+}
+
+impl ZoneMaterialGetter for CardZone {
+    fn get_mal(
+        &self,
+        materials: &mut ResMut<Assets<StandardMaterial>>,
+        _asset_server: &Res<AssetServer>,
+    ) -> Handle<StandardMaterial> {
+        match self {
+            CardZone::TypeA => materials.add(Color::BLACK),
+            CardZone::TypeB => materials.add(Color::WHITE),
+        }
+    }
+}
+```
+
+bind 类型到渲染插件中
+
+```rust
+fn main() {
+    App::new()
+        .add_plugins((DefaultPlugins, Card3DPlugins))
+        // .add_plugins(WorldInspectorPlugin::new())
+        .add_systems(Startup, setup)
+        .add_plugins(|app: &mut App| {
+            ///!!!!!! 这里！
+            bind_zone_render::<CardZone>(app);
+        })
+        .run();
+}
+```
+
+之后直接只用Zone组件和 我们新电影的组件CardZone即可
+
+```rust
+/// 行数 列数 和 正方形的宽 生成列表
+fn render_gen_zone_render(commands: &mut Commands, row: usize, col: usize, a: f32) {
+    for r in 0..row {
+        for c in 0..col {
+            let center = Transform::from_xyz(
+                c as f32 * a - (col - 1) as f32 * a / 2.0,
+                r as f32 * a - (row - 1) as f32 * a / 2.0,
+                0.0,
+            );
+            commands.spawn((
+                Zone {
+                    // 位置
+                    center,
+                    // 大小
+                    size: Vec2::new(a, a),
+                },
+                if ((r + c * a.floor() as usize) % 2) == 0 {
+                    CardZone::TypeB
+                } else {
+                    CardZone::TypeA
+                },
+            ));
+        }
+    }
+}
+
+```
+
 # 示例
 
-| example      | desc        |
-|--------------|-------------|
-| simple       | 基础使用        |
-| hand_card    | 手牌          |
-| zone         | 场地基础        |
-| card_on_zone | 卡片放置到不同的场地上 |
-| card_on_card | 卡片放到卡片上     |
-| card_preview | 预览图片的特性     |
-| desk_simple  | 简单的放置卡组     |
+| example      | desc            |
+|--------------|-----------------|
+| simple       | 基础使用            |
+| hand_card    | 手牌(新版)          |
+| zone         | 场地基础            |
+| card_on_zone | 卡片放置到不同的场地上（新版） |
+| card_on_card | 卡片放到卡片上         |
+| card_preview | 预览图片的特性         |
+| desk_simple  | 简单的放置卡组         |
 
 simple.rs
 
@@ -137,3 +268,13 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 感谢 Rabbival 和它的仓库 bevy_play_card
 如果你要开发2d的卡片游戏可以参考他的项目
 https://github.com/Rabbival/bevy_play_card
+
+# Change Log
+
+- 0.1.2
+- featrue 支撑HandCard的数据驱动
+- 新增了Desk相关代码【实验性】
+- Fix 手牌更新位置时bug
+- 0.1.1
+- featrue Card 和 Zone 数据驱动
+- 0.1.0 Init

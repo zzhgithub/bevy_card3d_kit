@@ -5,11 +5,9 @@ use bevy::math::Vec3;
 use bevy::pbr::PointLight;
 use bevy::prelude::*;
 use bevy_card3d_kit::prelude::{
-    Card, Card3DPlugins, HAND_CARD_LEVEL, HandCard, Moveable, SharkCamera,
-    calculate_hand_positions,
+    Card, Card3DPlugins, CardLine, HAND_CARD_LEVEL, HandCard, Moveable, SharkCamera,
 };
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use std::f32::consts::PI;
 
 use helpers::*;
 fn main() {
@@ -44,23 +42,26 @@ fn setup(mut commands: Commands) {
         "S001-A-001",
         // "S001-A-001",
     ];
-    let hand_positions =
-        calculate_hand_positions(card_list.len(), 0.0, 200., PI / 4., HAND_CARD_LEVEL, -6.7);
+    let card_line_entity = commands
+        .spawn(CardLine {
+            transform: Transform::from_xyz(0.0, -6.7, HAND_CARD_LEVEL),
+            card_list: vec![],
+        })
+        .id();
 
     // 加载手卡
-    hand_positions
-        .iter()
-        .enumerate()
-        .for_each(|(index, hand_position)| {
-            commands.spawn((
-                Card {
-                    origin: hand_position.clone(),
-                },
-                CardInfo {
-                    name: card_list[index].to_string(),
-                },
-                Moveable,
-                HandCard,
-            ));
-        });
+    card_list.iter().for_each(|name| {
+        commands.spawn((
+            Card {
+                origin: Transform::default(),
+            },
+            CardInfo {
+                name: name.to_string(),
+            },
+            Moveable,
+            HandCard {
+                belong_to_card_line: Some(card_line_entity),
+            },
+        ));
+    });
 }

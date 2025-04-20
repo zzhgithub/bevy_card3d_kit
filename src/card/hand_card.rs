@@ -9,9 +9,17 @@ use std::f32::consts::PI;
 use std::time::Duration;
 pub const HAND_CARD_LEVEL: f32 = 10.0;
 
+#[derive(Component, Clone, Default)]
+pub struct CardLine {
+    pub transform: Transform,
+    pub card_list: Vec<Entity>,
+}
+
 /// 手牌
-#[derive(Component, Copy, Clone)]
-pub struct HandCard;
+#[derive(Component, Copy, Clone, Default)]
+pub struct HandCard {
+    pub belong_to_card_line: Option<Entity>,
+}
 
 /// 手牌操作的平台
 #[derive(Component, Copy, Clone)]
@@ -19,7 +27,16 @@ pub struct HandCardPlane;
 
 /// 手牌发生变化事件
 #[derive(Event, Debug)]
-pub struct HandCardChanged;
+pub enum HandCardChanged {
+    Added {
+        card_entity: Entity,
+        card_line_entity: Entity,
+    },
+    Remove {
+        card_entity: Entity,
+        card_line_entity: Entity,
+    },
+}
 
 #[derive(Resource, Copy, Clone)]
 pub struct HandPlaneConfig(Transform);
@@ -45,7 +62,7 @@ impl Plugin for HandCardPlugin {
             .add_systems(Startup, setup)
             .add_observer(on_hover)
             .add_observer(on_hover_cancel)
-            .add_systems(Update, change_hand_cards);
+            .add_systems(Update, (added_hand_card, change_hand_cards_event));
     }
 }
 
@@ -136,41 +153,91 @@ pub fn on_hover_cancel(
     }
 }
 
-///  对手牌进行变化时的处理
-pub fn change_hand_cards(
+pub fn added_hand_card(
+    mut hand_card_event: EventWriter<HandCardChanged>,
+    query: Query<(Entity, &HandCard), (With<Card>, Added<HandCard>)>,
+) {
+    for (card_entity, hand_card) in query.iter() {
+        if let Some(belong_to) = hand_card.belong_to_card_line {
+            hand_card_event.send(HandCardChanged::Added {
+                card_entity,
+                card_line_entity: belong_to,
+            });
+        }
+    }
+}
+
+pub fn change_hand_cards_event(
     mut commands: Commands,
     mut hand_card_changed: EventReader<HandCardChanged>,
-    mut cards: Query<(Entity, &mut Transform, &mut Card), With<HandCard>>,
-    card_plane: Query<&Transform, (With<HandCardPlane>, Without<Card>)>,
+    mut query_card_line: Query<&mut CardLine>,
+    mut query_card: Query<(&mut Card, &mut Transform)>,
 ) {
-    for _ in hand_card_changed.read() {
-        let num = cards.iter().len();
-        if num > 0 {
-            if let Ok(tr) = card_plane.get_single() {
-                let hand_positions =
-                    calculate_hand_positions(num, 0.0, 200., PI / 4., tr.translation.z, -6.7);
-                let mut list: Vec<_> = cards.iter_mut().collect();
-                // 排序保障动画流畅
-                list.sort_by(|a, b| a.1.translation.x.partial_cmp(&b.1.translation.x).unwrap());
-
-                list.iter_mut().enumerate().for_each(
-                    |(index, &mut (ref mut _entity, ref mut transform, ref mut card))| {
-                        let target = AnimationTarget.into_target();
-                        let mut start = target.transform_state(transform.clone());
-                        if let Some(tr_end) = hand_positions.get(index) {
-                            commands
-                                .spawn((Name::new("hand card changed"),))
-                                .animation()
-                                .insert_tween_here(
-                                    Duration::from_secs_f32(0.2),
-                                    EaseKind::ExponentialOut,
-                                    start.translation_to(tr_end.clone().translation),
-                                );
-                            card.origin = tr_end.clone();
-                        }
-                    },
-                )
+    for event in hand_card_changed.read() {
+        match event {
+            HandCardChanged::Added {
+                card_entity,
+                card_line_entity,
+            } => {
+                // 给CardLine添加新成员
+                if let Ok(mut card_line) = query_card_line.get_mut(*card_line_entity) {
+                    card_line.card_list.push(*card_entity);
+                    change_all_cards(&card_line, &mut commands, &mut query_card);
+                }
+            }
+            HandCardChanged::Remove {
+                card_entity,
+                card_line_entity,
+            } => {
+                // 删除CardLine中的数据
+                if let Ok(mut card_line) = query_card_line.get_mut(*card_line_entity) {
+                    card_line.card_list.retain(|x| *x != *card_entity);
+                    commands.entity(*card_entity).remove::<HandCard>();
+                    change_all_cards(&card_line, &mut commands, &mut query_card);
+                }
             }
         }
     }
+}
+
+fn change_all_cards(
+    card_line: &CardLine,
+    commands: &mut Commands,
+    query_card: &mut Query<(&mut Card, &mut Transform)>,
+) {
+    if card_line.card_list.len() == 0 {
+        return;
+    }
+    // 计算所有卡的位置
+    let hand_positions = calculate_hand_positions(
+        card_line.card_list.len(),
+        card_line.transform.translation.x,
+        200.,
+        PI / 4.,
+        card_line.transform.translation.z,
+        card_line.transform.translation.y,
+    );
+    // 修改动画 和 Card内数据
+    card_line
+        .card_list
+        .iter()
+        .enumerate()
+        .for_each(|(index, card_entity)| {
+            if let Ok((mut card, card_transform)) = query_card.get_mut(*card_entity) {
+                let target = card_entity.clone().into_target();
+                let mut start = target.transform_state(*card_transform);
+                if let Some(tr_end) = hand_positions.get(index) {
+                    // 修改这里的值
+                    card.origin = Transform::from_translation(tr_end.translation);
+                    commands
+                        .spawn(Name::new(format!("hand card at index {}", index)))
+                        .animation()
+                        .insert_tween_here(
+                            Duration::from_secs_f32(0.2),
+                            EaseKind::ExponentialOut,
+                            start.translation_to(tr_end.clone().translation),
+                        );
+                }
+            }
+        })
 }
