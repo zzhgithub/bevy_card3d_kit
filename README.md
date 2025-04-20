@@ -108,6 +108,7 @@ fn setup(mut commands: Commands) {
 | card_on_zone | 卡片放置到不同的场地上 |
 | card_on_card | 卡片放到卡片上     |
 | card_preview | 预览图片的特性     |
+| desk_simple  | 简单的放置卡组     |
 
 simple.rs
 
@@ -131,6 +132,7 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 | 0.15 | 0.1.1           |
 
 # 鸣谢
+
 感谢 Wechat群Bevy引擎学习交流
 感谢 Rabbival 和它的仓库 bevy_play_card
 如果你要开发2d的卡片游戏可以参考他的项目
