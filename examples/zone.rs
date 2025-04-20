@@ -4,21 +4,20 @@ use bevy::color::Color;
 use bevy::pbr::StandardMaterial;
 use bevy::prelude::*;
 use bevy_card3d_kit::prelude::{Card3DPlugins, SharkCamera};
-use bevy_card3d_kit::zone::{ZoneBuilder, ZoneMaterialGetter, render_zone};
+use bevy_card3d_kit::zone::{Zone, ZoneMaterialGetter, bind_zone_render};
 
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, Card3DPlugins))
         // .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
+        .add_plugins(|app: &mut App| {
+            bind_zone_render::<CardZone>(app);
+        })
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+fn setup(mut commands: Commands) {
     // 相机
     commands.spawn((
         SharkCamera,
@@ -35,13 +34,7 @@ fn setup(
         Transform::from_xyz(0.0, 0.0, 10.0),
     ));
 
-    render_zone(
-        &mut commands,
-        &mut meshes,
-        &mut materials,
-        Transform::from_xyz(0.0, 0.0, 0.0),
-        gen_zone_builder_ver(10, 10, 1.2),
-    );
+    render_gen_zone_render(&mut commands, 10, 10, 1.2);
 }
 
 #[derive(Clone, Debug, Component)]
@@ -54,6 +47,7 @@ impl ZoneMaterialGetter for CardZone {
     fn get_mal(
         &self,
         materials: &mut ResMut<Assets<StandardMaterial>>,
+        _asset_server: &Res<AssetServer>,
     ) -> Handle<StandardMaterial> {
         match self {
             CardZone::TypeA => materials.add(Color::BLACK),
@@ -63,8 +57,7 @@ impl ZoneMaterialGetter for CardZone {
 }
 
 /// 行数 列数 和 正方形的宽 生成列表
-fn gen_zone_builder_ver(row: usize, col: usize, a: f32) -> Vec<ZoneBuilder<CardZone>> {
-    let mut res = Vec::with_capacity((row * col) as usize);
+fn render_gen_zone_render(commands: &mut Commands, row: usize, col: usize, a: f32) {
     for r in 0..row {
         for c in 0..col {
             let center = Transform::from_xyz(
@@ -72,17 +65,17 @@ fn gen_zone_builder_ver(row: usize, col: usize, a: f32) -> Vec<ZoneBuilder<CardZ
                 r as f32 * a - (row - 1) as f32 * a / 2.0,
                 0.0,
             );
-            res.push(ZoneBuilder {
-                size: Vec2::new(a, a),
-                center,
-                zone_type: if ((r + c * a.floor() as usize) % 2) == 0 {
+            commands.spawn((
+                Zone {
+                    center,
+                    size: Vec2::new(a, a),
+                },
+                if ((r + c * a.floor() as usize) % 2) == 0 {
                     CardZone::TypeB
                 } else {
                     CardZone::TypeA
                 },
-            });
+            ));
         }
     }
-
-    res
 }

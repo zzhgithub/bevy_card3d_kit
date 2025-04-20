@@ -1,6 +1,8 @@
+pub mod desk_zone;
 pub mod events;
 
 use crate::prelude::Card;
+use crate::zone::desk_zone::when_added_to_desk;
 use crate::zone::events::CardOnZone;
 use bevy::app::App;
 use bevy::asset::Handle;
@@ -11,22 +13,15 @@ pub struct ZonePlugin;
 
 impl Plugin for ZonePlugin {
     fn build(&self, app: &mut App) {
-        // todo
+        app.add_systems(Update, when_added_to_desk);
     }
 }
-
-#[derive(Component, Debug, Clone)]
-pub struct ZoneBuilder<T: Component + Clone> {
-    // 尺寸
-    pub size: Vec2,
-    // 中心位置
-    pub center: Transform,
-    pub zone_type: T,
-}
-
 pub trait ZoneMaterialGetter {
-    fn get_mal(&self, materials: &mut ResMut<Assets<StandardMaterial>>)
-    -> Handle<StandardMaterial>;
+    fn get_mal(
+        &self,
+        materials: &mut ResMut<Assets<StandardMaterial>>,
+        asset_server: &Res<AssetServer>,
+    ) -> Handle<StandardMaterial>;
 }
 
 /// 场地根节点
@@ -37,38 +32,36 @@ pub struct ZoneParent;
 #[derive(Component, Default, Debug, Clone, Copy)]
 pub struct Zone {
     pub center: Transform,
+    pub size: Vec2,
 }
 
-/// 渲染整个场地
-pub fn render_zone<T: Component + Clone + ZoneMaterialGetter>(
-    commands: &mut Commands,
-    meshes: &mut ResMut<Assets<Mesh>>,
-    mut materials: &mut ResMut<Assets<StandardMaterial>>,
-    center: Transform,
-    zone_builder_vec: Vec<ZoneBuilder<T>>,
-) {
-    commands
-        .spawn((
-            ZoneParent,
-            center,
-            Visibility::default(),
-            Name::new(format!("Zone Parent on {:?}", center.clone())),
-        ))
-        .with_children(|parent| {
-            for zone_builder in zone_builder_vec {
-                parent
-                    .spawn((
-                        Zone {
-                            center: zone_builder.center.clone(),
-                        },
-                        zone_builder.clone().zone_type,
-                        Mesh3d(meshes.add(Rectangle::from_size(zone_builder.size))),
-                        zone_builder.center,
-                        MeshMaterial3d(zone_builder.clone().zone_type.get_mal(&mut materials)),
-                    ))
-                    .observe(deal_drop_card_on_zone);
-            }
-        });
+/// 绑定场地渲染的类
+pub fn bind_zone_render<T>(app: &mut App)
+where
+    T: Component + Clone + ZoneMaterialGetter,
+{
+    app.add_systems(Update, spawn_zone::<T>);
+}
+
+fn spawn_zone<T>(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
+    query: Query<(Entity, &Zone, &T), Added<Zone>>,
+) where
+    T: Component + Clone + ZoneMaterialGetter,
+{
+    for (zone_entity, &zone, t) in query.iter() {
+        commands
+            .entity(zone_entity)
+            .insert((
+                zone.center.clone(),
+                Mesh3d(meshes.add(Rectangle::from_size(zone.size))),
+                MeshMaterial3d(t.get_mal(&mut materials, &asset_server)),
+            ))
+            .observe(deal_drop_card_on_zone);
+    }
 }
 
 pub fn deal_drop_card_on_zone(
@@ -78,7 +71,7 @@ pub fn deal_drop_card_on_zone(
     query: Query<&Parent>,
     mut commands: Commands,
 ) {
-    debug!("Drag drop: {:?}", drag_drop);
+    info!("Drag drop: {:?}", drag_drop);
     if let Ok(zone_entity) = query_zone.get(drag_drop.target) {
         if let Ok(parent) = query.get(drag_drop.dropped) {
             if let Ok(card_entity) = query_card.get(parent.get()) {

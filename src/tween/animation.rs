@@ -48,6 +48,7 @@ pub fn play_card_going_back_to_place_animation(
         )));
 }
 
+/// 登场动画
 pub fn card_set_on_zone_animation(
     card_entity: Entity,
     card: &Card,
@@ -96,5 +97,48 @@ pub fn card_set_on_zone_animation(
                 ),
                 event("shark"),
             )),
+        )));
+}
+
+/// 没有特效的登场动画
+pub fn card_set_on_zone_animation_without_boom(
+    card_entity: Entity,
+    card: &Card,
+    zone: &Zone,
+    card_transform: &Transform,
+    card_name: &Name,
+    commands: &mut Commands,
+) {
+    let animation_target = card_entity.into_target();
+    let mut transform_state = animation_target.transform_state(*card_transform);
+
+    let mut mid = Vec3::ZERO;
+    mid.z = card.origin.translation.z;
+
+    let mut mid2 = Vec3::ZERO;
+    mid2.z = card.origin.translation.z + 7.0;
+
+    let mut mid_state = animation_target.transform_state(Transform::from_translation(mid));
+    let mut mid_state2 = animation_target.transform_state(Transform::from_translation(mid));
+
+    commands
+        .spawn((Name::new(format!("card_set_on_zone-{}", card_name)),))
+        .animation()
+        .insert(sequence((
+            tween(
+                Duration::from_secs_f32(1.0),
+                EaseKind::ExponentialOut,
+                transform_state.translation_to(mid),
+            ),
+            parallel((tween(
+                Duration::from_secs_f32(1.0),
+                EaseKind::ExponentialOut,
+                mid_state.translation_to(mid2),
+            ),)),
+            parallel((tween(
+                Duration::from_secs_f32(0.6),
+                EaseKind::ExponentialOut,
+                mid_state2.translation_to(zone.center.translation),
+            ),)),
         )));
 }

@@ -1,5 +1,4 @@
-use crate::card::event::{CardsEventsPlugin, DeclareDraggingDoneForCard};
-use crate::prelude::{Card, ClearOnFinishExt, Dragged};
+use crate::card::event::CardsEventsPlugin;
 use crate::tween::base_color::{BaseColor, basic_color};
 use crate::tween::clear_on_finish::clear_on_finish_system;
 use crate::tween::shark::{SharkCamera, custom_interpolators_plugin, effect_intensity};
@@ -73,7 +72,6 @@ fn effect_system(
             commands
                 .spawn(Name::new("small_boom"))
                 .animation()
-                .clear_on_finish()
                 .insert(sequence((
                     tween(
                         Duration::from_secs_f32(0.2),
@@ -113,7 +111,6 @@ fn effect_system(
             commands
                 .spawn(Name::new("boom"))
                 .animation()
-                .clear_on_finish()
                 .insert(sequence((
                     tween(
                         Duration::from_secs_f32(1.0),
@@ -137,7 +134,6 @@ fn effect_system(
                 commands
                     .spawn(Name::new("shark"))
                     .animation()
-                    .clear_on_finish()
                     .insert(sequence((
                         tween(
                             Duration::from_secs_f32(0.2),

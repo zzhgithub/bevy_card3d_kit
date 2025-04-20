@@ -4,7 +4,7 @@ use crate::card3d::Card3DConfig;
 use crate::preview_plugins::ImagePreview;
 #[cfg(feature = "image_preview")]
 use crate::preview_plugins::preview_on_click;
-use crate::zone::events::{CardOnCard, CardOnZone};
+use crate::zone::events::CardOnCard;
 use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
 

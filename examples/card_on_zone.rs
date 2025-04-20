@@ -10,8 +10,9 @@ use bevy_card3d_kit::prelude::{
 };
 use bevy_card3d_kit::tween::animation::card_set_on_zone_animation;
 use bevy_card3d_kit::zone::events::CardOnZone;
-use bevy_card3d_kit::zone::{Zone, ZoneBuilder, ZoneMaterialGetter, render_zone};
+use bevy_card3d_kit::zone::{Zone, ZoneMaterialGetter, bind_zone_render};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use std::thread::spawn;
 
 fn main() {
     App::new()
@@ -19,14 +20,13 @@ fn main() {
         .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
         .add_observer(card_on_zone)
+        .add_plugins(|app: &mut App| {
+            bind_zone_render::<ConditionZone>(app);
+        })
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+fn setup(mut commands: Commands) {
     // 相机
     commands.spawn((
         SharkCamera,
@@ -43,24 +43,20 @@ fn setup(
         Transform::from_xyz(0.0, 0.0, 10.0),
     ));
 
-    render_zone(
-        &mut commands,
-        &mut meshes,
-        &mut materials,
-        Transform::from_xyz(0.0, 0.0, 0.0),
-        vec![
-            ZoneBuilder {
-                size: Vec2::new(5.0, 5.0),
-                center: Transform::from_xyz(-3.0, 0.0, 0.0),
-                zone_type: ConditionZone::CanSet,
-            },
-            ZoneBuilder {
-                size: Vec2::new(5.0, 5.0),
-                center: Transform::from_xyz(3.0, 0.0, 0.0),
-                zone_type: ConditionZone::NotCanSet,
-            },
-        ],
-    );
+    commands.spawn((
+        Zone {
+            size: Vec2::new(5.0, 5.0),
+            center: Transform::from_xyz(-3.0, 0.0, 0.0),
+        },
+        ConditionZone::CanSet,
+    ));
+    commands.spawn((
+        Zone {
+            size: Vec2::new(5.0, 5.0),
+            center: Transform::from_xyz(3.0, 0.0, 0.0),
+        },
+        ConditionZone::NotCanSet,
+    ));
 
     commands.spawn((
         Card {
@@ -91,8 +87,7 @@ fn card_on_zone(
                         commands.entity(child).remove::<PickingBehavior>();
                     }
                 }
-                if let Ok((card, card_name, card_transform)) =
-                    query_card.get_mut(card_on_zone.card)
+                if let Ok((card, card_name, card_transform)) = query_card.get_mut(card_on_zone.card)
                 {
                     if let Ok(zone) = query_zone.get(card_on_zone.zone) {
                         card_set_on_zone_animation(
@@ -124,6 +119,7 @@ impl ZoneMaterialGetter for ConditionZone {
     fn get_mal(
         &self,
         materials: &mut ResMut<Assets<StandardMaterial>>,
+        _asset_server: &Res<AssetServer>,
     ) -> Handle<StandardMaterial> {
         match self {
             ConditionZone::CanSet => materials.add(Color::Srgba(GREEN)),

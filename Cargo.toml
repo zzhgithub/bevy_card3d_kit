@@ -1,6 +1,6 @@
 [package]
 name = "bevy_card3d_kit"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "a lib for put and use Card in 3d"
 categories = ["game-development"]
@@ -79,3 +79,7 @@ path = "examples/card_on_card.rs"
 name = "card_preview"
 path = "examples/card_preview.rs"
 required-features = ["image_preview"]
+
+[[example]]
+name = "desk_simple"
+path = "examples/desk_simple.rs"

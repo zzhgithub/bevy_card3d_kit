@@ -128,7 +128,7 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 
 | bevy | bevy_card3d_kit |
 |------|-----------------|
-| 0.15 | 0.1.0           |
+| 0.15 | 0.1.1           |
 
 # 鸣谢
 感谢 Wechat群Bevy引擎学习交流
