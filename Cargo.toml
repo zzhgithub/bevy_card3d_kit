@@ -8,7 +8,7 @@ homepage = "https://github.com/zzhgithub/bevy_card3d_kit"
 repository = "https://github.com/zzhgithub/bevy_card3d_kit"
 authors = ["robzhou 1042181618@qq.com"]
 readme = "README.md"
-exclude = ["doc/*"]
+exclude = ["doc/*", "examples/*", "target/*", "assets/*"]
 license = "MIT OR Apache-2.0"
 
 
