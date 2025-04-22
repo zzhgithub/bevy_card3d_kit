@@ -1,12 +1,16 @@
+use crate::card::card_state::{CardState, calculate_transform};
 use crate::prelude::{Card, Dragged, Moveable};
-use crate::tween::animation::play_card_going_back_to_place_animation;
+use crate::tween::animation::{
+    play_card_going_back_to_place_animation, play_card_going_back_to_trans_animation,
+};
 use bevy::math::ops::{cos, sin};
 use bevy::prelude::*;
-use bevy_tween::combinator::AnimationBuilderExt;
+use bevy_tween::combinator::{AnimationBuilderExt, parallel, sequence, tween};
 use bevy_tween::prelude::{EaseKind, IntoTarget, TransformTargetStateExt};
 use bevy_tween::tween::AnimationTarget;
 use std::f32::consts::PI;
 use std::time::Duration;
+
 pub const HAND_CARD_LEVEL: f32 = 10.0;
 
 #[derive(Component, Clone, Default)]
@@ -93,7 +97,7 @@ pub fn calculate_hand_positions(
         let x = center_x + radius * sin(radian);
         let mut y = base_y + radius * (1.0_f32 - cos(radian));
         y += radius * 0.1 * (1. - cos(2. * radian));
-        vec.push(Transform::from_xyz(x, y, z - 0.001 * i as f32));
+        vec.push(Transform::from_xyz(x, y, z - 0.01 * i as f32));
     }
     vec
 }
@@ -134,16 +138,17 @@ pub fn on_hover_cancel(
     mut commands: Commands,
     query: Query<&Parent>,
     query_transform: Query<
-        (&Transform, &Card, &Name),
+        (&Transform, &Card, &Name, Option<&CardState>),
         (With<HandCard>, With<Moveable>, Without<Dragged>),
     >,
 ) {
     if let Ok(parent) = query.get(out_trigger.target) {
-        if let Ok((card_transform, card, card_name)) = query_transform.get(parent.get()) {
+        if let Ok((card_transform, card, card_name, opt_state)) = query_transform.get(parent.get())
+        {
             debug!("hand card on out {}", card_name);
-            play_card_going_back_to_place_animation(
+            play_card_going_back_to_trans_animation(
                 parent.get(),
-                card,
+                calculate_transform(card.origin, opt_state.cloned()),
                 &card_transform,
                 card_name,
                 &mut commands,
@@ -170,7 +175,7 @@ pub fn added_hand_card(
 pub fn change_hand_cards_event(
     mut commands: Commands,
     mut hand_card_changed: EventReader<HandCardChanged>,
-    mut query_card_line: Query<&mut CardLine>,
+    mut query_card_line: Query<(&mut CardLine, Option<&CardState>)>,
     mut query_card: Query<(&mut Card, &mut Transform)>,
 ) {
     for event in hand_card_changed.read() {
@@ -180,9 +185,15 @@ pub fn change_hand_cards_event(
                 card_line_entity,
             } => {
                 // 给CardLine添加新成员
-                if let Ok(mut card_line) = query_card_line.get_mut(*card_line_entity) {
+                if let Ok((mut card_line, opt_state)) = query_card_line.get_mut(*card_line_entity) {
+                    info!("add hand card to card line {:?}", card_line_entity);
                     card_line.card_list.push(*card_entity);
-                    change_all_cards(&card_line, &mut commands, &mut query_card);
+                    change_all_cards(
+                        &card_line,
+                        &mut commands,
+                        &mut query_card,
+                        opt_state.cloned(),
+                    );
                 }
             }
             HandCardChanged::Remove {
@@ -190,10 +201,15 @@ pub fn change_hand_cards_event(
                 card_line_entity,
             } => {
                 // 删除CardLine中的数据
-                if let Ok(mut card_line) = query_card_line.get_mut(*card_line_entity) {
+                if let Ok((mut card_line, opt_state)) = query_card_line.get_mut(*card_line_entity) {
                     card_line.card_list.retain(|x| *x != *card_entity);
                     commands.entity(*card_entity).remove::<HandCard>();
-                    change_all_cards(&card_line, &mut commands, &mut query_card);
+                    change_all_cards(
+                        &card_line,
+                        &mut commands,
+                        &mut query_card,
+                        opt_state.cloned(),
+                    );
                 }
             }
         }
@@ -204,6 +220,7 @@ fn change_all_cards(
     card_line: &CardLine,
     commands: &mut Commands,
     query_card: &mut Query<(&mut Card, &mut Transform)>,
+    opt_state: Option<CardState>,
 ) {
     if card_line.card_list.len() == 0 {
         return;
@@ -223,20 +240,42 @@ fn change_all_cards(
         .iter()
         .enumerate()
         .for_each(|(index, card_entity)| {
+            // 更改Card的姿态信息
+            if let Some(state) = opt_state.clone() {
+                commands.entity(*card_entity).insert(state.clone());
+            }
             if let Ok((mut card, card_transform)) = query_card.get_mut(*card_entity) {
                 let target = card_entity.clone().into_target();
                 let mut start = target.transform_state(*card_transform);
                 if let Some(tr_end) = hand_positions.get(index) {
+                    let calculated_end = calculate_transform(tr_end.clone(), opt_state.clone());
                     // 修改这里的值
                     card.origin = Transform::from_translation(tr_end.translation);
+
+                    info!(
+                        "change from {:?} to {:?} state{:?}",
+                        card.origin, calculated_end, opt_state
+                    );
                     commands
                         .spawn(Name::new(format!("hand card at index {}", index)))
                         .animation()
-                        .insert_tween_here(
-                            Duration::from_secs_f32(0.2),
-                            EaseKind::ExponentialOut,
-                            start.translation_to(tr_end.clone().translation),
-                        );
+                        .insert(sequence((parallel((
+                            tween(
+                                Duration::from_secs_f32(0.1),
+                                EaseKind::ExponentialOut,
+                                start.translation_to(calculated_end.translation),
+                            ),
+                            tween(
+                                Duration::from_secs_f32(0.1),
+                                EaseKind::ExponentialOut,
+                                start.rotation_to(calculated_end.rotation),
+                            ),
+                            tween(
+                                Duration::from_secs_f32(0.1),
+                                EaseKind::ExponentialOut,
+                                start.scale_to(calculated_end.scale),
+                            ),
+                        )),)));
                 }
             }
         })

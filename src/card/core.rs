@@ -1,4 +1,5 @@
 use crate::card::card_mesh::gen_card_mesh_list;
+use crate::card::card_state::{CardState, calculate_transform};
 use crate::card3d::Card3DConfig;
 #[cfg(feature = "image_preview")]
 use crate::preview_plugins::ImagePreview;
@@ -55,7 +56,7 @@ fn render_added_card<T>(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     card3d_config: Res<Card3DConfig>,
-    query_card: Query<(Entity, &Card, &T), Added<Card>>,
+    query_card: Query<(Entity, &Card, &T, Option<&CardState>), Added<Card>>,
     asset_server: Res<AssetServer>,
 ) where
     T: Component + Clone + CardMaterialGetter,
@@ -67,10 +68,11 @@ fn render_added_card<T>(
         card3d_config.radius,
         card3d_config.thick,
     );
-    for (card_entity, card, t) in query_card.iter() {
+    for (card_entity, card, t, opt_state) in query_card.iter() {
         commands
             .entity(card_entity)
-            .insert(card.origin.clone())
+            // 计算新的位置
+            .insert(calculate_transform(card.origin.clone(), opt_state.cloned()))
             .insert(Visibility::default())
             .insert(AnimationTarget)
             .with_children(|parent| {

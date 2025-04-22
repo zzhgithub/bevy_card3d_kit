@@ -61,7 +61,9 @@ path = "examples/simple.rs"
 name = "hand_card"
 path = "examples/hand_card.rs"
 
-
+[[example]]
+name = "hand_card_with_state"
+path = "examples/hand_card_with_state.rs"
 
 [[example]]
 name = "zone"

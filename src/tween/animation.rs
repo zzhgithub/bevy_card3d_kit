@@ -48,6 +48,46 @@ pub fn play_card_going_back_to_place_animation(
         )));
 }
 
+/// 卡片回到某个位置
+pub fn play_card_going_back_to_trans_animation(
+    card_entity: Entity,
+    back_to: Transform,
+    card_transform: &Transform,
+    card_name: &Name,
+    commands: &mut Commands,
+) {
+    let animation_target = card_entity.into_target();
+    let mut transform_state = animation_target.transform_state(*card_transform);
+    commands
+        .spawn((Name::new(format!(
+            "Go-back-to-trans-after-dragging animation parent for {}",
+            card_name
+        )),))
+        .animation()
+        .insert(sequence((
+            parallel((
+                tween(
+                    Duration::from_secs_f32(0.04),
+                    EaseKind::ExponentialOut,
+                    transform_state.translation_to(back_to.translation),
+                ),
+                tween(
+                    Duration::from_secs_f32(0.04),
+                    EaseKind::ExponentialOut,
+                    transform_state.rotation_to(back_to.rotation),
+                ),
+                tween(
+                    Duration::from_secs_f32(0.04),
+                    EaseKind::ExponentialOut,
+                    transform_state.scale_to(back_to.scale),
+                ),
+            )),
+            event(DeclareDraggingDoneForCard {
+                card_entity: Some(card_entity),
+            }),
+        )));
+}
+
 /// 登场动画
 pub fn card_set_on_zone_animation(
     card_entity: Entity,

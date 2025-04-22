@@ -229,17 +229,29 @@ fn render_gen_zone_render(commands: &mut Commands, row: usize, col: usize, a: f3
 
 ```
 
+## 卡片姿态
+
+给下组件的实体添加CardState用来控制卡片的显示姿态
+
+- Card
+- HandCard
+- [ ] Zone
+- [ ] DeskZone
+
+> Zone 和 DeskZone目前还没有支持
+
 # 示例
 
-| example      | desc            |
-|--------------|-----------------|
-| simple       | 基础使用            |
-| hand_card    | 手牌(新版)          |
-| zone         | 场地基础            |
-| card_on_zone | 卡片放置到不同的场地上（新版） |
-| card_on_card | 卡片放到卡片上         |
-| card_preview | 预览图片的特性         |
-| desk_simple  | 简单的放置卡组         |
+| example               | desc            |
+|-----------------------|-----------------|
+| simple                | 基础使用            |
+| hand_card             | 手牌(新版)          |
+| zone                  | 场地基础            |
+| card_on_zone          | 卡片放置到不同的场地上（新版） |
+| card_on_card          | 卡片放到卡片上         |
+| card_preview          | 预览图片的特性         |
+| desk_simple           | 简单的放置卡组         |
+| hand_card_with_state) | 两组手牌 使用卡片姿态控制   |
 
 simple.rs
 
@@ -261,20 +273,26 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 | bevy | bevy_card3d_kit |
 |------|-----------------|
 | 0.15 | 0.1.2           |
+| 0.16 | TODO            |
 
 # 鸣谢
 
 感谢 Wechat群Bevy引擎学习交流
+
 感谢 Rabbival 和它的仓库 bevy_play_card
+
 如果你要开发2d的卡片游戏可以参考他的项目
 https://github.com/Rabbival/bevy_play_card
 
 # Change Log
 
-- 0.1.2
+## 0.1.2
+
 - featrue 支撑HandCard的数据驱动
 - 新增了Desk相关代码【实验性】
 - Fix 手牌更新位置时bug
-- 0.1.1
+
+## 0.1.1
+
 - featrue Card 和 Zone 数据驱动
 - 0.1.0 Init
