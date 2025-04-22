@@ -295,6 +295,26 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 | 0.15 | 0.1.2           |
 | 0.16 | TODO            |
 
+# TODO LIST
+
+- Feature：更好的Desk初始化问题
+- FIX: 更好的手牌位置算法。
+- Feature: 拖拽时的 Zone交互
+- Feature: 攻击时交互。攻击线,攻击动画。攻击发生后的AttackEvent
+- Feature: 破坏时特效。
+- Feature: 墓地Zone
+- Feature: 效果无效时的动画
+- Feature: 一套可用的交互UI
+- Feature: Zone信息查看的基本内容（疑问 是否应该在插件内做。还是应该在具体项目内实现）
+- Feature: 基础UI（名字血量等）
+- Feature: 暴雨的粒子特效
+- Feature: 基础音效！Rock!Rock!Rock!
+
+ForGame:
+
+- 实现理性区和激情区的Zone
+- 实现准备区和安全屋(可以放置卡的位置)的Zone
+
 # 鸣谢
 
 感谢 Wechat群Bevy引擎学习交流
