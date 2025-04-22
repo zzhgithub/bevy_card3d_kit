@@ -2,6 +2,7 @@ mod helpers;
 
 use bevy::color::palettes::css::GRAY;
 use bevy::prelude::*;
+use bevy_card3d_kit::prelude::card_state::CardState;
 use bevy_card3d_kit::prelude::{Card, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera};
 use bevy_card3d_kit::zone::desk_zone::{DeskCard, DeskZone};
 use bevy_card3d_kit::zone::{Zone, ZoneMaterialGetter, bind_zone_render};
@@ -60,6 +61,10 @@ fn setup(mut commands: Commands) {
             },
             DeskZone::default(),
             ZoneInfo::Desk,
+            CardState {
+                face_up: false,
+                vertical: true,
+            },
         ))
         .id();
     // 设置值

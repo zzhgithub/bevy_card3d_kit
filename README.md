@@ -229,16 +229,36 @@ fn render_gen_zone_render(commands: &mut Commands, row: usize, col: usize, a: f3
 
 ```
 
+## 放置卡片到Zone上 && 放置卡片到卡片上
+
+```rust
+#[derive(Event, Clone, Debug)]
+pub struct CardOnZone {
+    pub card: Entity,
+    pub zone: Entity,
+}
+
+// 卡片进入到卡片上
+#[derive(Event, Clone, Debug)]
+pub struct CardOnCard {
+    pub bottom_card: Entity,
+    pub top_card: Entity,
+}
+
+```
+
+用户可以写自己的 Observer进行处理。详细可见example中的示例
+
 ## 卡片姿态
 
 给下组件的实体添加CardState用来控制卡片的显示姿态
 
 - Card
 - HandCard
+- DeskZone
 - [ ] Zone
-- [ ] DeskZone
 
-> Zone 和 DeskZone目前还没有支持
+> Zone 需要监听CardOnZone Observer 而后自己对对象进行操作（后续可能会有默认的操作）
 
 # 示例
 
@@ -285,6 +305,10 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 https://github.com/Rabbival/bevy_play_card
 
 # Change Log
+
+## 0.1.3
+
+- feature 支撑卡片姿态。来控制显示的数据是何种类
 
 ## 0.1.2
 
