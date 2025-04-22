@@ -292,7 +292,7 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 
 | bevy | bevy_card3d_kit |
 |------|-----------------|
-| 0.15 | 0.1.2           |
+| 0.15 | 0.1.3           |
 | 0.16 | TODO            |
 
 # TODO LIST
@@ -309,6 +309,7 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 - Feature: 基础UI（名字血量等）
 - Feature: 暴雨的粒子特效
 - Feature: 基础音效！Rock!Rock!Rock!
+- Document: English Version document.More Official doc for rust code.
 
 ForGame:
 
