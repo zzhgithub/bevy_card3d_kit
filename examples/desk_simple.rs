@@ -1,6 +1,6 @@
 mod helpers;
 
-use bevy::color::palettes::css::GRAY;
+use bevy::color::palettes::css::RED;
 use bevy::prelude::*;
 use bevy_card3d_kit::prelude::card_state::CardState;
 use bevy_card3d_kit::prelude::{Card, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera};
@@ -78,6 +78,9 @@ fn setup(mut commands: Commands) {
             Card {
                 origin: Transform::from_xyz(0.0, 0.0, HAND_CARD_LEVEL),
             },
+            DeskCard {
+                belongs_to_desk: Some(desk_entity),
+            },
         ))
         .observe(observer_click);
 }
@@ -120,6 +123,6 @@ impl ZoneMaterialGetter for ZoneInfo {
         materials: &mut ResMut<Assets<StandardMaterial>>,
         _asset_server: &Res<AssetServer>,
     ) -> Handle<StandardMaterial> {
-        materials.add(Color::Srgba(GRAY))
+        materials.add(Color::Srgba(RED))
     }
 }

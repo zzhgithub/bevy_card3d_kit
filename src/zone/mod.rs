@@ -2,7 +2,7 @@ pub mod desk_zone;
 pub mod events;
 
 use crate::prelude::Card;
-use crate::zone::desk_zone::when_added_to_desk;
+use crate::zone::desk_zone::{DeskZonePlugin};
 use crate::zone::events::CardOnZone;
 use bevy::app::App;
 use bevy::asset::Handle;
@@ -13,7 +13,7 @@ pub struct ZonePlugin;
 
 impl Plugin for ZonePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, when_added_to_desk);
+        app.add_plugins(DeskZonePlugin);
     }
 }
 pub trait ZoneMaterialGetter {
