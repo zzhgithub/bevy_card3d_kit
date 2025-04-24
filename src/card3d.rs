@@ -5,6 +5,7 @@ use crate::zone::ZonePlugin;
 use bevy::prelude::*;
 use bevy_tween::DefaultTweenPlugins;
 use std::marker::PhantomData;
+use crate::card::card_material::CardMaterialPlugin;
 #[cfg(feature = "image_preview")]
 use crate::preview_plugins::PreviewPlugins;
 
@@ -34,6 +35,7 @@ impl Plugin for Card3DPlugins {
         app.add_plugins((
             DefaultTweenPlugins,
             CardNamerPlugin,
+            CardMaterialPlugin,
             MeshPickingPlugin,
             HandCardPlugin,
             ExtTweenPlugins,

@@ -88,7 +88,7 @@ pub fn play_card_going_back_to_trans_animation(
         )));
 }
 
-/// 登场动画
+/// 登场动画有特效
 pub fn card_set_on_zone_animation(
     card_entity: Entity,
     card: &Card,

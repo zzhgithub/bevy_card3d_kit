@@ -8,6 +8,7 @@ use crate::preview_plugins::preview_on_click;
 use crate::zone::events::CardOnCard;
 use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
+use crate::card::card_material::CardMaterial;
 
 #[derive(Component, Debug)]
 pub struct Card {
@@ -30,9 +31,9 @@ pub trait CardMaterialGetter {
     /// 正面素材
     fn get_face_mal(
         &self,
-        materials: &mut ResMut<Assets<StandardMaterial>>,
+        materials: &mut ResMut<Assets<CardMaterial>>,
         asset_server: &Res<AssetServer>,
-    ) -> Handle<StandardMaterial>;
+    ) -> Handle<CardMaterial>;
     /// 背面素材
     fn get_back_mal(
         &self,
@@ -55,6 +56,7 @@ fn render_added_card<T>(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut card_materials: ResMut<Assets<CardMaterial>>,
     card3d_config: Res<Card3DConfig>,
     query_card: Query<(Entity, &Card, &T, Option<&CardState>), Added<Card>>,
     asset_server: Res<AssetServer>,
@@ -90,7 +92,7 @@ fn render_added_card<T>(
                         .spawn((
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
-                            MeshMaterial3d(t.get_face_mal(&mut materials, &asset_server)),
+                            MeshMaterial3d(t.get_face_mal(&mut card_materials, &asset_server)),
                         ))
                         .observe(deal_drop_card_on_zone);
                 }

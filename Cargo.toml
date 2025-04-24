@@ -8,7 +8,7 @@ homepage = "https://github.com/zzhgithub/bevy_card3d_kit"
 repository = "https://github.com/zzhgithub/bevy_card3d_kit"
 authors = ["robzhou 1042181618@qq.com"]
 readme = "README.md"
-exclude = ["doc/*", "examples/*", "target/*", "assets/*"]
+exclude = ["doc/*", "examples/*", "target/*", "assets/cards/*"]
 license = "MIT OR Apache-2.0"
 
 
@@ -85,3 +85,8 @@ required-features = ["image_preview"]
 [[example]]
 name = "desk_simple"
 path = "examples/desk_simple.rs"
+
+
+[[example]]
+name = "effect_cut"
+path = "examples/effect_cut.rs"

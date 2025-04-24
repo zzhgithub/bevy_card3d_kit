@@ -272,6 +272,7 @@ pub struct CardOnCard {
 | card_preview          | 预览图片的特性         |
 | desk_simple           | 简单的放置卡组         |
 | hand_card_with_state) | 两组手牌 使用卡片姿态控制   |
+| effect_cut            | 效果无效时动画         |
 
 simple.rs
 
@@ -303,7 +304,7 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 - Feature: 攻击时交互。攻击线,攻击动画。攻击发生后的AttackEvent
 - Feature: 破坏时特效。
 - Feature: 墓地Zone
-- Feature: 效果无效时的动画
+- ~~Feature: 效果无效时的动画~~
 - Feature: 一套可用的交互UI
 - Feature: Zone信息查看的基本内容（疑问 是否应该在插件内做。还是应该在具体项目内实现）
 - Feature: 基础UI（名字血量等）

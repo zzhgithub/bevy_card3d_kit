@@ -15,6 +15,7 @@ pub mod event;
 pub mod hand_card;
 pub mod move_card;
 pub mod card_state;
+pub mod card_material;
 
 #[deprecated]
 /// 生成一个Card实体
