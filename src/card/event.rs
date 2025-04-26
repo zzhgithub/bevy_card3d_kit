@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_tween::tween_event::TweenEventPlugin;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, Hash, PartialOrd, Default)]
+#[derive(Debug, Clone, Copy, PartialEq,Deserialize, Serialize, Eq, Hash, PartialOrd, Default)]
 pub struct DeclareDraggingDoneForCard {
     pub card_entity: Option<Entity>,
 }

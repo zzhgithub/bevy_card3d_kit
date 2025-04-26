@@ -293,8 +293,8 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 
 | bevy | bevy_card3d_kit |
 |------|-----------------|
+| 0.16 | 0.1.4           |
 | 0.15 | 0.1.3           |
-| 0.16 | TODO            |
 
 # TODO LIST
 
@@ -327,6 +327,11 @@ ForGame:
 https://github.com/Rabbival/bevy_play_card
 
 # Change Log
+
+## 0.1.4
+
+- 升级bevy 到0.16
+- 实现效果无效动画
 
 ## 0.1.3
 

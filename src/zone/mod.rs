@@ -68,13 +68,13 @@ pub fn deal_drop_card_on_zone(
     drag_drop: Trigger<Pointer<DragDrop>>,
     query_card: Query<Entity, With<Card>>,
     query_zone: Query<Entity, (With<Zone>, Without<Card>)>,
-    query: Query<&Parent>,
+    query: Query<&ChildOf>,
     mut commands: Commands,
 ) {
     info!("Drag drop: {:?}", drag_drop);
     if let Ok(zone_entity) = query_zone.get(drag_drop.target) {
         if let Ok(parent) = query.get(drag_drop.dropped) {
-            if let Ok(card_entity) = query_card.get(parent.get()) {
+            if let Ok(card_entity) = query_card.get(parent.parent()) {
                 commands.trigger(CardOnZone {
                     card: card_entity,
                     zone: zone_entity,

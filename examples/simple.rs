@@ -1,9 +1,7 @@
 mod helpers;
 
 use bevy::prelude::*;
-use bevy_card3d_kit::prelude::{
-    Card, Card3DPlugins, CardMaterialGetter, HAND_CARD_LEVEL, SharkCamera, bind_card_render,
-};
+use bevy_card3d_kit::prelude::{Card, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera};
 use helpers::*;
 
 fn main() {

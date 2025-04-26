@@ -41,7 +41,7 @@ fn added_desk_card(
 ) {
     for (card_entity, desk_card) in query.iter() {
         if let Some(belongs_to_desk) = desk_card.belongs_to_desk {
-            desk_card_event.send(DeskZoneChangedEvent::Added {
+            desk_card_event.write(DeskZoneChangedEvent::Added {
                 desk: belongs_to_desk,
                 card: card_entity,
             });

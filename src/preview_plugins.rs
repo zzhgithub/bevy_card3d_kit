@@ -137,12 +137,12 @@ pub fn preview_on_click(
     query: Query<&mut ImagePreview, With<Card>>,
     mut image_stage: ResMut<ImageStage>,
     mut next_state: ResMut<NextState<PreviewState>>,
-    p_q: Query<&Parent>,
+    p_q: Query<&ChildOf>,
     asset_server: Res<AssetServer>,
 ) {
     info!("Clicked on preview");
     if let Ok(parent) = p_q.get(drag_start.target) {
-        if let Ok(preview) = query.get(parent.get()) {
+        if let Ok(preview) = query.get(parent.parent()) {
             let image = asset_server.load(format!("cards/{}.png", preview.0));
             image_stage.0 = Some(image);
             next_state.set(PreviewState::Show);

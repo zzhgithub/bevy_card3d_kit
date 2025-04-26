@@ -1,6 +1,6 @@
 use crate::card::event::CardsEventsPlugin;
 use crate::tween::base_color::{BaseColor, basic_color};
-use crate::tween::card_gray::{CardGray, CardGrayPlugin};
+use crate::tween::card_gray::CardGrayPlugin;
 use crate::tween::clear_on_finish::clear_on_finish_system;
 use crate::tween::shark::{SharkCamera, custom_interpolators_plugin, effect_intensity};
 use bevy::color::palettes::basic::{WHITE, YELLOW};
@@ -131,7 +131,7 @@ fn effect_system(
                 )));
         }
         "shark" => {
-            if let Ok((entity, _trans)) = query.get_single() {
+            if let Ok((entity, _trans)) = query.single() {
                 commands.entity(entity).insert(AnimationTarget);
                 commands
                     .spawn(Name::new("shark"))
@@ -160,7 +160,7 @@ pub fn despawn_done_time_runners(
 ) {
     for event in time_runner_ended_reader.read() {
         if event.is_completed() {
-            commands.entity(event.time_runner).try_despawn_recursive();
+            commands.entity(event.time_runner).despawn();
         }
     }
 }
@@ -179,6 +179,6 @@ fn listen_to_despawn_events(
     mut commands: Commands,
 ) {
     if let Some(entity) = trigger.data.entity {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }

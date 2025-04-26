@@ -43,7 +43,7 @@ fn shark_do_effect<C: Component>(
     let mut rng = rand::rng();
     let dx: f32 = rng.random();
     let dy: f32 = rng.random();
-    if let Ok(mut transform) = shark_q.get_single_mut() {
+    if let Ok(mut transform) = shark_q.single_mut() {
         transform.translation.x = dx * effect_intensity.0;
         transform.translation.y = dy * effect_intensity.0;
     }

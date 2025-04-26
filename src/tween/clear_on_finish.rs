@@ -1,5 +1,4 @@
-use bevy::hierarchy::Children;
-use bevy::prelude::{Commands, Component, Entity, EventReader, Has, Query};
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct ClearOnFinish;

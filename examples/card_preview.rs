@@ -1,6 +1,7 @@
 mod helpers;
 
 use bevy::prelude::*;
+use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_card3d_kit::prelude::{
     Card, Card3DPlugins, CardMaterialGetter, HAND_CARD_LEVEL, SharkCamera,
 };
@@ -10,6 +11,7 @@ use helpers::*;
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, Card3DPlugins, SimplePlugin))
+        .add_plugins(EguiPlugin { enable_multipass_for_primary_context: true })
         .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
         .run();

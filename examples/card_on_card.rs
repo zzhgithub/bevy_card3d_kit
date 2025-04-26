@@ -3,12 +3,16 @@ mod helpers;
 use bevy::prelude::*;
 use bevy_card3d_kit::prelude::{Card, Card3DPlugins, HAND_CARD_LEVEL, Moveable, SharkCamera};
 use bevy_card3d_kit::zone::events::CardOnCard;
+use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use helpers::*;
 
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, Card3DPlugins, SimplePlugin))
+        .add_plugins(EguiPlugin {
+            enable_multipass_for_primary_context: true,
+        })
         .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
         .add_observer(card_on_zone)
@@ -46,7 +50,7 @@ fn setup(mut commands: Commands) {
             name: "NAAI-A-001".to_string(),
         },
         Card {
-            origin: Transform::from_xyz(0.0, -4.0, HAND_CARD_LEVEL),
+            origin: Transform::from_xyz(0.0, -4.0, HAND_CARD_LEVEL + 0.1),
         },
         Moveable,
     ));

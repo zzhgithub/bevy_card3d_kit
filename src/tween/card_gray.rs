@@ -1,15 +1,10 @@
 use crate::card::card_material::CardMaterial;
-use crate::card::card_state::{CardState, calculate_transform};
 use crate::prelude::Card;
 use bevy::app::App;
-use bevy::log::info;
-use bevy::prelude::{
-    Added, Children, Commands, Component, Entity, Event, EventReader, EventWriter, FloatExt,
-    Handle, MeshMaterial3d, Name, Plugin, Query, Reflect, Transform, Update, Vec3, With,
-};
+use bevy::prelude::*;
 use bevy_tween::combinator::{AnimationBuilderExt, sequence, tween};
-use bevy_tween::interpolate::{Interpolator, scale, scale_to};
-use bevy_tween::prelude::{AssetTween, EaseKind, IntoTarget, TransformTargetStateExt};
+use bevy_tween::interpolate::{Interpolator, scale};
+use bevy_tween::prelude::{AssetTween, EaseKind, IntoTarget};
 use bevy_tween::{BevyTweenRegisterSystems, asset_tween_system};
 use std::time::Duration;
 
@@ -57,7 +52,7 @@ fn add_effect_cut(
 ) {
     for card_entity in query.iter() {
         info!("Added effect cut");
-        event_writer.send(CardEffectCutAnimationEvent { card_entity });
+        event_writer.write(CardEffectCutAnimationEvent { card_entity });
     }
 }
 
@@ -75,8 +70,8 @@ fn deal_card_effect_cut_animation_event(
 ) {
     for event in events.read() {
         if let Ok((card_name, children)) = query.get(event.card_entity.clone()) {
-            for x in children.iter() {
-                if let Ok(material) = query_mal.get(*x) {
+            for inner_entity in children.iter() {
+                if let Ok(material) = query_mal.get(inner_entity) {
                     let gray_target = material.clone().0.into_target();
                     let animation_target = event.card_entity.clone().into_target();
                     commands.entity(event.card_entity).remove::<EffectCut>();

@@ -118,14 +118,14 @@ fn render_added_card<T>(
 pub fn deal_drop_card_on_zone(
     drag_drop: Trigger<Pointer<DragDrop>>,
     query_card: Query<Entity, With<Card>>,
-    query: Query<&Parent>,
+    query: Query<&ChildOf>,
     mut commands: Commands,
 ) {
     debug!("Drag drop: {:?}", drag_drop);
     if let Ok(card_bottom) = query.get(drag_drop.target) {
-        if let Ok(card_bottom_entity) = query_card.get(card_bottom.get()) {
+        if let Ok(card_bottom_entity) = query_card.get(card_bottom.parent()) {
             if let Ok(parent) = query.get(drag_drop.dropped) {
-                if let Ok(card_top_entity) = query_card.get(parent.get()) {
+                if let Ok(card_top_entity) = query_card.get(parent.parent()) {
                     commands.trigger(CardOnCard {
                         bottom_card: card_bottom_entity,
                         top_card: card_top_entity,

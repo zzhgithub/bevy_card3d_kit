@@ -14,10 +14,12 @@ use bevy_card3d_kit::zone::events::CardOnZone;
 use bevy_card3d_kit::zone::{Zone, ZoneMaterialGetter, bind_zone_render};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use std::thread::spawn;
+use bevy_inspector_egui::bevy_egui::EguiPlugin;
 
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, Card3DPlugins, SimplePlugin))
+        .add_plugins(EguiPlugin { enable_multipass_for_primary_context: true })
         .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
         .add_observer(card_on_zone)
@@ -115,14 +117,14 @@ fn card_on_zone(
                     .remove::<Moveable>();
 
                 if let Ok(children) = query_children.get(card_on_zone.card) {
-                    for &child in children.iter() {
-                        commands.entity(child).remove::<PickingBehavior>();
+                    for child in children.iter() {
+                        commands.entity(child).remove::<Pickable>();
                     }
                 }
                 if let Ok((mut card, card_name, card_transform, hand_card)) =
                     query_card.get_mut(card_on_zone.card)
                 {
-                    hand_card_event.send(HandCardChanged::Remove {
+                    hand_card_event.write(HandCardChanged::Remove {
                         card_entity: card_on_zone.card,
                         card_line_entity: hand_card.belong_to_card_line.unwrap(),
                     });
@@ -156,7 +158,7 @@ fn observer_card_line(
     query: Query<Entity, Without<HandCard>>,
     card_line_entity: Res<CardLineEntity>,
 ) {
-    if let Ok(entity) = query.get(on_click.entity()) {
+    if let Ok(entity) = query.get(on_click.target()) {
         if let Some(belong) = card_line_entity.0 {
             commands
                 .entity(entity)

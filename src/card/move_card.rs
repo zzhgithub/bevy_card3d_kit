@@ -42,7 +42,7 @@ where
 {
     move |drag, mut transforms, camera_query, windows, ground| {
         // 这个是需要修改的值
-        if let Ok(mut transform) = transforms.get_mut(drag.entity()) {
+        if let Ok(mut transform) = transforms.get_mut(drag.target()) {
             let (camera, camera_transform) = *camera_query;
 
             let Some(cursor_position) = windows.cursor_position() else {
@@ -74,15 +74,15 @@ fn on_drag_start(
     mut commands: Commands,
     query: Query<&Children>,
 ) {
-    if let Ok((_card_transform, _card)) = card_transforms.get_mut(drag_start.entity()) {
-        if let Some(mut entity_commands) = commands.get_entity(drag_start.entity()) {
+    if let Ok((_card_transform, _card)) = card_transforms.get_mut(drag_start.target()) {
+        if let Ok(mut entity_commands) = commands.get_entity(drag_start.target()) {
             // info!("drag start");
             entity_commands.insert(Dragged::Actively);
         }
 
-        if let Ok(children) = query.get(drag_start.entity()) {
-            for &child in children.iter() {
-                commands.entity(child).insert(PickingBehavior::IGNORE);
+        if let Ok(children) = query.get(drag_start.target()) {
+            for child in children.iter() {
+                commands.entity(child).insert(Pickable::IGNORE);
             }
         }
     }
@@ -95,14 +95,14 @@ fn back_to_origin_when_unused(
     query: Query<&Children>,
 ) {
     debug!("drag end {:?}", drag_end.target);
-    debug!("drag end {:?}", drag_end.entity());
+    debug!("drag end {:?}", drag_end.target());
     if let Ok((card_transform, card_entity, card, mut card_dragged_component, card_name)) =
-        dragged_cards.get_mut(drag_end.entity())
+        dragged_cards.get_mut(drag_end.target())
     {
         debug!("drag end!!!");
-        if let Ok(children) = query.get(drag_end.entity()) {
-            for &child in children.iter() {
-                commands.entity(child).remove::<PickingBehavior>();
+        if let Ok(children) = query.get(drag_end.target()) {
+            for child in children.iter() {
+                commands.entity(child).remove::<Pickable>();
             }
         }
         *card_dragged_component = Dragged::GoingBackToPlace;
@@ -124,7 +124,7 @@ fn listen_to_dragging_done_for_card(
 ) {
     if let Some(entity) = trigger.data.card_entity {
         if let Ok(dragged) = cards.get(entity) {
-            if let Some(mut entity_commands) = commands.get_entity(entity) {
+            if let Ok(mut entity_commands) = commands.get_entity(entity) {
                 match dragged {
                     Dragged::Actively => {
                         // do nothing!

@@ -103,20 +103,20 @@ pub fn calculate_hand_positions(
 pub fn on_hover(
     over_trigger: Trigger<Pointer<Over>>,
     mut commands: Commands,
-    query: Query<&Parent>,
+    query: Query<&ChildOf>,
     query_transform: Query<
         (&Transform, &Card, &Name),
         (With<HandCard>, With<Moveable>, Without<Dragged>),
     >,
 ) {
     if let Ok(parent) = query.get(over_trigger.target) {
-        if let Ok((card_transform, _card, card_name)) = query_transform.get(parent.get()) {
+        if let Ok((card_transform, _card, card_name)) = query_transform.get(parent.parent()) {
             debug!("hand card on hovered {}", card_name);
-            let target = parent.get().into_target();
+            let target = parent.parent().into_target();
             let mut start = target.transform_state(card_transform.clone());
             let mut end = card_transform.clone().translation;
             end.y += 2.0;
-            commands.entity(parent.get()).insert(HandOnHover);
+            commands.entity(parent.parent()).insert(HandOnHover);
             commands
                 .spawn((Name::new(format!("hand card on hovered {}", card_name)),))
                 .animation()
@@ -133,24 +133,25 @@ pub fn on_hover(
 pub fn on_hover_cancel(
     out_trigger: Trigger<Pointer<Out>>,
     mut commands: Commands,
-    query: Query<&Parent>,
+    query: Query<&ChildOf>,
     query_transform: Query<
         (&Transform, &Card, &Name, Option<&CardState>),
         (With<HandCard>, With<Moveable>, Without<Dragged>),
     >,
 ) {
     if let Ok(parent) = query.get(out_trigger.target) {
-        if let Ok((card_transform, card, card_name, opt_state)) = query_transform.get(parent.get())
+        if let Ok((card_transform, card, card_name, opt_state)) =
+            query_transform.get(parent.parent())
         {
             debug!("hand card on out {}", card_name);
             play_card_going_back_to_trans_animation(
-                parent.get(),
+                parent.parent(),
                 calculate_transform(card.origin, opt_state.cloned()),
                 &card_transform,
                 card_name,
                 &mut commands,
             );
-            commands.entity(parent.get()).remove::<HandOnHover>();
+            commands.entity(parent.parent()).remove::<HandOnHover>();
         }
     }
 }
@@ -161,7 +162,7 @@ pub fn added_hand_card(
 ) {
     for (card_entity, hand_card) in query.iter() {
         if let Some(belong_to) = hand_card.belong_to_card_line {
-            hand_card_event.send(HandCardChanged::Added {
+            hand_card_event.write(HandCardChanged::Added {
                 card_entity,
                 card_line_entity: belong_to,
             });
