@@ -1,5 +1,4 @@
 use crate::prelude::Card;
-use bevy::input::mouse::MouseButtonInput;
 use bevy::prelude::*;
 
 pub struct PreviewPlugins;
@@ -26,7 +25,6 @@ pub enum PreviewState {
     Disable,
     Show,
 }
-
 
 impl Plugin for PreviewPlugins {
     fn build(&self, app: &mut App) {
@@ -133,20 +131,26 @@ fn check_long_press(
 }
 
 pub fn preview_on_click(
-    drag_start: Trigger<Pointer<Click>>,
+    drag_start: Trigger<Pointer<Pressed>>,
     query: Query<&mut ImagePreview, With<Card>>,
     mut image_stage: ResMut<ImageStage>,
     mut next_state: ResMut<NextState<PreviewState>>,
+    mut now_state: Res<State<PreviewState>>,
     p_q: Query<&ChildOf>,
     asset_server: Res<AssetServer>,
 ) {
     info!("Clicked on preview");
-    if let Ok(parent) = p_q.get(drag_start.target) {
-        if let Ok(preview) = query.get(parent.parent()) {
-            let image = asset_server.load(format!("cards/{}.png", preview.0));
-            image_stage.0 = Some(image);
-            next_state.set(PreviewState::Show);
+    match now_state.get() {
+        PreviewState::Disable => {
+            if let Ok(parent) = p_q.get(drag_start.target) {
+                if let Ok(preview) = query.get(parent.parent()) {
+                    let image = asset_server.load(format!("cards/{}.png", preview.0));
+                    image_stage.0 = Some(image);
+                    next_state.set(PreviewState::Show);
+                }
+            }
         }
+        PreviewState::Show => {}
     }
 }
 
