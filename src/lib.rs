@@ -4,6 +4,7 @@ pub mod tween;
 pub mod zone;
 #[cfg(feature = "image_preview")]
 pub mod preview_plugins;
+pub mod editor;
 
 pub mod prelude {
     pub use crate::card::core::*;

@@ -8,7 +8,7 @@ use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
 
-mod card_mesh;
+pub mod card_mesh;
 pub mod card_namer;
 pub mod core;
 pub mod event;

@@ -1,3 +1,4 @@
+use crate::card::card_material::CardMaterial;
 use crate::card::card_mesh::gen_card_mesh_list;
 use crate::card::card_state::{CardState, calculate_transform};
 use crate::card3d::Card3DConfig;
@@ -8,7 +9,6 @@ use crate::preview_plugins::preview_on_click;
 use crate::zone::events::CardOnCard;
 use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
-use crate::card::card_material::CardMaterial;
 
 #[derive(Component, Debug)]
 pub struct Card {
@@ -94,7 +94,7 @@ fn render_added_card<T>(
                             trans.clone(),
                             MeshMaterial3d(t.get_face_mal(&mut card_materials, &asset_server)),
                         ))
-                        .observe(deal_drop_card_on_zone);
+                        .observe(deal_drop_card_on_card);
                 }
                 // 背面
                 for (mesh_handle, trans) in mesh_list.clone().2 {
@@ -104,7 +104,7 @@ fn render_added_card<T>(
                             trans.clone(),
                             MeshMaterial3d(t.get_back_mal(&mut materials, &asset_server)),
                         ))
-                        .observe(deal_drop_card_on_zone);
+                        .observe(deal_drop_card_on_card);
                 }
             });
         #[cfg(feature = "image_preview")]
@@ -115,7 +115,7 @@ fn render_added_card<T>(
     }
 }
 
-pub fn deal_drop_card_on_zone(
+pub fn deal_drop_card_on_card(
     drag_drop: Trigger<Pointer<DragDrop>>,
     query_card: Query<Entity, With<Card>>,
     query: Query<&ChildOf>,
