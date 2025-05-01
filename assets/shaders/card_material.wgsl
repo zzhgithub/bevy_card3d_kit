@@ -1,9 +1,11 @@
 #import bevy_pbr::forward_io::VertexOutput
 
 @group(2) @binding(0) var<uniform> material: f32;
-@group(2) @binding(1) var base_color_texture: texture_2d<f32>;
-@group(2) @binding(2) var base_color_sampler: sampler;
-
+@group(2) @binding(1) var<uniform> u_time: f32;
+@group(2) @binding(2) var base_color_texture: texture_2d<f32>;
+@group(2) @binding(3) var base_color_sampler: sampler;
+@group(2) @binding(4) var crack_texture: texture_2d<f32>;
+@group(2) @binding(5) var crack_sampler: sampler;
 
 
 @fragment
@@ -18,6 +20,10 @@ fn fragment(
     // 混合彩色与灰色，根据 grayscale_amount 渐变
     let final_color = mix(color.rgb, gray_color, clamp(material, 0.0, 1.0));
 
-    return vec4(final_color, color.a);
-//    return color;
+    // 碎片化
+    let crack_color = textureSample(crack_texture, crack_sampler, mesh.uv);
+
+    let final_color2 = mix(final_color.rgb, crack_color.rgb, clamp(u_time, 0.0, 1.0));
+
+    return vec4(final_color2, color.a);
 }

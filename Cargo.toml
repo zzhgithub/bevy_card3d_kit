@@ -92,3 +92,7 @@ path = "examples/desk_simple.rs"
 [[example]]
 name = "effect_cut"
 path = "examples/effect_cut.rs"
+
+[[example]]
+name = "crack"
+path = "examples/crack.rs"

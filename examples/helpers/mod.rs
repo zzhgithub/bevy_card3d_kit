@@ -17,8 +17,10 @@ impl CardMaterialGetter for CardInfo {
         asset_server: &Res<AssetServer>,
     ) -> Handle<CardMaterial> {
         materials.add(CardMaterial {
-            grayscale: 0.0,
+            gray_scale: 0.0,
+            crack_scale: 0.0,
             base_color_texture: asset_server.load(format!("cards/{}.png", self.name)),
+            crack_texture: asset_server.load("shaders/crack.png"),
         })
     }
 

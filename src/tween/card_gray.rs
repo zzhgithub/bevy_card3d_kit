@@ -20,7 +20,7 @@ impl Interpolator for CardGray {
     type Item = CardMaterial;
 
     fn interpolate(&self, item: &mut Self::Item, value: f32) {
-        item.grayscale = self.start.lerp(self.end, value);
+        item.gray_scale = self.start.lerp(self.end, value);
     }
 }
 

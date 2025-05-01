@@ -13,11 +13,18 @@ impl Plugin for CardMaterialPlugin {
 #[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
 pub struct CardMaterial {
     #[uniform(0)]
-    pub grayscale: f32,
+    pub gray_scale: f32,
 
-    #[texture(1)]
-    #[sampler(2)]
+    #[uniform(1)]
+    pub crack_scale: f32,
+
+    #[texture(2)]
+    #[sampler(3)]
     pub base_color_texture: Handle<Image>,
+
+    #[texture(4)]
+    #[sampler(5)]
+    pub crack_texture: Handle<Image>,
 }
 
 impl Material for CardMaterial {
