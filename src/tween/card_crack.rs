@@ -1,6 +1,5 @@
 use crate::card::card_material::CardMaterial;
 use crate::prelude::Card;
-use crate::tween::card_gray::EffectCut;
 use bevy::prelude::*;
 use bevy_tween::combinator::tween;
 use bevy_tween::interpolate::Interpolator;

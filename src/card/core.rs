@@ -1,3 +1,4 @@
+use crate::card::card_material::CardMaterial;
 use crate::card::card_mesh::gen_card_mesh_list;
 use crate::card::card_state::{CardState, calculate_transform};
 use crate::card3d::Card3DConfig;
@@ -8,7 +9,6 @@ use crate::preview_plugins::preview_on_click;
 use crate::zone::events::CardOnCard;
 use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
-use crate::card::card_material::CardMaterial;
 
 #[derive(Component, Debug)]
 pub struct Card {
@@ -29,17 +29,9 @@ pub enum Dragged {
 pub struct Hovered;
 pub trait CardMaterialGetter {
     /// 正面素材
-    fn get_face_mal(
-        &self,
-        materials: &mut ResMut<Assets<CardMaterial>>,
-        asset_server: &Res<AssetServer>,
-    ) -> Handle<CardMaterial>;
+    fn get_face_mal(&self) -> String;
     /// 背面素材
-    fn get_back_mal(
-        &self,
-        materials: &mut ResMut<Assets<StandardMaterial>>,
-        asset_server: &Res<AssetServer>,
-    ) -> Handle<StandardMaterial>;
+    fn get_back_mal(&self) -> String;
 
     #[cfg(feature = "image_preview")]
     fn get_id(&self) -> String;
@@ -92,7 +84,12 @@ fn render_added_card<T>(
                         .spawn((
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
-                            MeshMaterial3d(t.get_face_mal(&mut card_materials, &asset_server)),
+                            MeshMaterial3d(card_materials.add(CardMaterial {
+                                gray_scale: 0.0,
+                                crack_scale: 0.0,
+                                base_color_texture: asset_server.load(t.get_face_mal()),
+                                crack_texture: asset_server.load("shaders/crack.png"),
+                            })),
                         ))
                         .observe(deal_drop_card_on_zone);
                 }
@@ -102,7 +99,13 @@ fn render_added_card<T>(
                         .spawn((
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
-                            MeshMaterial3d(t.get_back_mal(&mut materials, &asset_server)),
+                            MeshMaterial3d(materials.add(StandardMaterial {
+                                base_color: Color::WHITE,
+                                unlit: true,
+                                base_color_texture: Some(asset_server.load(t.get_back_mal())),
+                                alpha_mode: AlphaMode::Blend,
+                                ..Default::default()
+                            })),
                         ))
                         .observe(deal_drop_card_on_zone);
                 }

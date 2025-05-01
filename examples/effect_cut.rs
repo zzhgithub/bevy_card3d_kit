@@ -15,7 +15,7 @@ fn main() {
         })
         .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
-        .add_systems(Update, spacebar_system)
+        .add_systems(Update, (spacebar_system, spacebar_system_b))
         .run();
 }
 
@@ -55,6 +55,19 @@ fn spacebar_system(
         for entity in query.iter() {
             info!("Added");
             commands.entity(entity).insert(EffectCut);
+        }
+    }
+}
+
+fn spacebar_system_b(
+    input: Res<ButtonInput<KeyCode>>,
+    query: Query<Entity, (With<Card>, With<EffectCut>)>,
+    mut commands: Commands,
+) {
+    if input.just_pressed(KeyCode::Space) {
+        for entity in query.iter() {
+            info!("Added");
+            commands.entity(entity).remove::<EffectCut>();
         }
     }
 }

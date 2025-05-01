@@ -32,32 +32,17 @@ pub struct CardInfo {
 }
 
 impl CardMaterialGetter for CardInfo {
-    fn get_face_mal(
-        &self,
-        materials: &mut ResMut<Assets<StandardMaterial>>,
-        asset_server: &Res<AssetServer>,
-    ) -> Handle<StandardMaterial> {
-        materials.add(StandardMaterial {
-            base_color: Color::WHITE,
-            unlit: true,
-            base_color_texture: Some(asset_server.load(format!("cards/{}.png", self.name))),
-            alpha_mode: AlphaMode::Blend,
-            ..Default::default()
-        })
+    fn get_face_mal(&self) -> String {
+        format!("cards/{}.png", self.name)
     }
 
-    fn get_back_mal(
-        &self,
-        materials: &mut ResMut<Assets<StandardMaterial>>,
-        asset_server: &Res<AssetServer>,
-    ) -> Handle<StandardMaterial> {
-        materials.add(StandardMaterial {
-            base_color: Color::WHITE,
-            unlit: true,
-            base_color_texture: Some(asset_server.load(format!("cards/{}.png", "back"))),
-            alpha_mode: AlphaMode::Blend,
-            ..Default::default()
-        })
+    fn get_back_mal(&self) -> String {
+        format!("cards/{}.png", "back")
+    }
+
+    #[cfg(feature = "image_preview")]
+    fn get_id(&self) -> String {
+        self.name.clone()
     }
 }
 
@@ -260,6 +245,15 @@ pub struct CardOnCard {
 
 > Zone 需要监听CardOnZone Observer 而后自己对对象进行操作（后续可能会有默认的操作）
 
+# 卡片效果
+
+添加或者删除这些组件产生相应效果
+
+| 组件名称      | desc |
+|-----------|------|
+| EffectCut | 效果失效 |
+| CardCrack | 卡片破坏 |
+
 # 示例
 
 | example               | desc            |
@@ -273,6 +267,7 @@ pub struct CardOnCard {
 | desk_simple           | 简单的放置卡组         |
 | hand_card_with_state) | 两组手牌 使用卡片姿态控制   |
 | effect_cut            | 效果无效时动画         |
+| crack                 | 卡片破碎时效果         |
 
 simple.rs
 
