@@ -297,7 +297,7 @@ https://github.com/user-attachments/assets/4490abbf-29ee-4af9-824a-74af213052c3
 - FIX: 更好的手牌位置算法。
 - Feature: 拖拽时的 Zone交互
 - Feature: 攻击时交互。攻击线,攻击动画。攻击发生后的AttackEvent
-- Feature: 破坏时特效。
+- Feature: 破坏时特效。(一部分)
 - Feature: 墓地Zone
 - ~~Feature: 效果无效时的动画~~
 - Feature: 一套可用的交互UI
