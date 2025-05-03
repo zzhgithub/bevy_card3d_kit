@@ -269,6 +269,8 @@ pub struct CardOnCard {
 | effect_cut            | 效果无效时动画         |
 | crack                 | 卡片破碎时效果         |
 
+TODO 一个综合的例子
+
 simple.rs
 
 https://github.com/user-attachments/assets/892158c5-2788-4906-a22a-7fca0f820ec9

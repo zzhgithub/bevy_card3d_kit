@@ -7,8 +7,11 @@ use crate::preview_plugins::ImagePreview;
 #[cfg(feature = "image_preview")]
 use crate::preview_plugins::preview_on_click;
 use crate::zone::events::CardOnCard;
+use bevy::asset::AssetPath;
+use bevy::asset::io::AssetSourceId;
 use bevy::prelude::*;
 use bevy_tween::tween::AnimationTarget;
+use std::path::Path;
 
 #[derive(Component, Debug)]
 pub struct Card {
@@ -84,12 +87,19 @@ fn render_added_card<T>(
                         .spawn((
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
-                            MeshMaterial3d(card_materials.add(CardMaterial {
-                                gray_scale: 0.0,
-                                crack_scale: 0.0,
-                                base_color_texture: asset_server.load(t.get_face_mal()),
-                                crack_texture: asset_server.load("shaders/crack.png"),
-                            })),
+                            MeshMaterial3d(
+                                card_materials.add(CardMaterial {
+                                    gray_scale: 0.0,
+                                    crack_scale: 0.0,
+                                    base_color_texture: asset_server.load(t.get_face_mal()),
+                                    crack_texture: asset_server.load(
+                                        AssetPath::from(
+                                            Path::new("bevy_card3d_kit").join("assets/shaders/crack.png"),
+                                        )
+                                        .with_source(AssetSourceId::from("embedded")),
+                                    ),
+                                }),
+                            ),
                         ))
                         .observe(deal_drop_card_on_zone);
                 }
