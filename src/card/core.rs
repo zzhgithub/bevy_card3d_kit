@@ -10,7 +10,7 @@ use crate::zone::events::CardOnCard;
 use bevy::asset::AssetPath;
 use bevy::asset::io::AssetSourceId;
 use bevy::prelude::*;
-use bevy_mod_outline::InheritOutline;
+use bevy_mod_outline::{InheritOutline, OutlineStencil, OutlineVolume};
 use bevy_tween::tween::AnimationTarget;
 use std::path::Path;
 
@@ -71,6 +71,12 @@ fn render_added_card<T>(
             .entity(card_entity)
             .insert(Mesh3d::default())
             // 计算新的位置
+            .insert(OutlineVolume {
+                visible: false,
+                width: 10.0,
+                ..Default::default()
+            })
+            .insert(OutlineStencil { ..default() })
             .insert(calculate_transform(card.origin.clone(), opt_state.cloned()))
             .insert(Visibility::default())
             .insert(AnimationTarget)
