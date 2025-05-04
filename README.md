@@ -268,6 +268,7 @@ pub struct CardOnCard {
 | hand_card_with_state) | 两组手牌 使用卡片姿态控制   |
 | effect_cut            | 效果无效时动画         |
 | crack                 | 卡片破碎时效果         |
+| highlight             | 高亮效果            |
 
 TODO 一个综合的例子
 
@@ -329,6 +330,8 @@ https://github.com/Rabbival/bevy_play_card
 
 - 升级bevy 到0.16
 - 实现效果无效动画
+- 实现破坏特效
+- 实现卡片高亮
 
 ## 0.1.3
 

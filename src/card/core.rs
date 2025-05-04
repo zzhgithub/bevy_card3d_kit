@@ -10,6 +10,7 @@ use crate::zone::events::CardOnCard;
 use bevy::asset::AssetPath;
 use bevy::asset::io::AssetSourceId;
 use bevy::prelude::*;
+use bevy_mod_outline::InheritOutline;
 use bevy_tween::tween::AnimationTarget;
 use std::path::Path;
 
@@ -68,6 +69,7 @@ fn render_added_card<T>(
     for (card_entity, card, t, opt_state) in query_card.iter() {
         commands
             .entity(card_entity)
+            .insert(Mesh3d::default())
             // 计算新的位置
             .insert(calculate_transform(card.origin.clone(), opt_state.cloned()))
             .insert(Visibility::default())
@@ -79,12 +81,14 @@ fn render_added_card<T>(
                         Mesh3d(mesh_handle.clone()),
                         trans.clone(),
                         MeshMaterial3d(materials.add(Color::BLACK)),
+                        InheritOutline,
                     ));
                 }
                 // 加载内容
                 for (mesh_handle, trans) in mesh_list.clone().1 {
                     parent
                         .spawn((
+                            InheritOutline,
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
                             MeshMaterial3d(
@@ -94,7 +98,8 @@ fn render_added_card<T>(
                                     base_color_texture: asset_server.load(t.get_face_mal()),
                                     crack_texture: asset_server.load(
                                         AssetPath::from(
-                                            Path::new("bevy_card3d_kit").join("assets/shaders/crack.png"),
+                                            Path::new("bevy_card3d_kit")
+                                                .join("assets/shaders/crack.png"),
                                         )
                                         .with_source(AssetSourceId::from("embedded")),
                                     ),
@@ -107,6 +112,7 @@ fn render_added_card<T>(
                 for (mesh_handle, trans) in mesh_list.clone().2 {
                     parent
                         .spawn((
+                            InheritOutline,
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
                             MeshMaterial3d(materials.add(StandardMaterial {

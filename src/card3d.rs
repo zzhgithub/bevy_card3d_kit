@@ -1,11 +1,12 @@
 use crate::card::card_material::CardMaterialPlugin;
+use crate::highlight::HighlightPlugin;
 use crate::prelude::card_namer::CardNamerPlugin;
 use crate::prelude::{HandCardPlane, HandCardPlugin};
 #[cfg(feature = "image_preview")]
 use crate::preview_plugins::PreviewPlugins;
 use crate::tween::ExtTweenPlugins;
 use crate::zone::ZonePlugin;
-use bevy::asset::{embedded_asset, load_internal_asset};
+use bevy::asset::embedded_asset;
 use bevy::prelude::*;
 use bevy_tween::DefaultTweenPlugins;
 use std::marker::PhantomData;
@@ -45,6 +46,7 @@ impl Plugin for Card3DPlugins {
                 _phantom: PhantomData,
             },
             ZonePlugin,
+            HighlightPlugin,
         ))
         .init_resource::<Card3DConfig>();
         #[cfg(feature = "image_preview")]

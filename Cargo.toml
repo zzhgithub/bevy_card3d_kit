@@ -32,6 +32,7 @@ bevy = { version = "0.16.0", default-features = false }
 bevy_tween = { git = "https://github.com/Multirious/bevy_tween.git", branch = "bevy-v0.16.0" }
 serde = { version = "1.0.217", features = ["derive"] }
 rand = "0.9.0-beta.1"
+bevy_mod_outline = { git = "https://github.com/komadori/bevy_mod_outline.git", branch = "bevy-0.16" }
 
 [dev-dependencies]
 bevy-inspector-egui = "0.31.0"
@@ -96,3 +97,8 @@ path = "examples/effect_cut.rs"
 [[example]]
 name = "crack"
 path = "examples/crack.rs"
+
+
+[[example]]
+name = "highlight"
+path = "examples/highlight.rs"

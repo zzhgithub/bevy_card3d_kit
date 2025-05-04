@@ -5,6 +5,7 @@ use bevy::DefaultPlugins;
 use bevy::app::{App, Startup};
 use bevy::color::palettes::css::{GREEN, RED};
 use bevy::prelude::*;
+use bevy_card3d_kit::highlight::Highlight;
 use bevy_card3d_kit::prelude::{
     Card, Card3DPlugins, CardLine, Dragged, HAND_CARD_LEVEL, HandCard, HandCardChanged, Moveable,
     SharkCamera,
@@ -12,14 +13,15 @@ use bevy_card3d_kit::prelude::{
 use bevy_card3d_kit::tween::animation::card_set_on_zone_animation;
 use bevy_card3d_kit::zone::events::CardOnZone;
 use bevy_card3d_kit::zone::{Zone, ZoneMaterialGetter, bind_zone_render};
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use std::thread::spawn;
 use bevy_inspector_egui::bevy_egui::EguiPlugin;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, Card3DPlugins, SimplePlugin))
-        .add_plugins(EguiPlugin { enable_multipass_for_primary_context: true })
+        .add_plugins(EguiPlugin {
+            enable_multipass_for_primary_context: true,
+        })
         .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
         .add_observer(card_on_zone)
@@ -53,6 +55,10 @@ fn setup(mut commands: Commands) {
             center: Transform::from_xyz(-3.0, 0.0, 0.0),
         },
         ConditionZone::CanSet,
+        // FIXME: 层级问题。希望这个outline 在下方!
+        Highlight {
+            color: Color::WHITE,
+        },
     ));
     commands.spawn((
         Zone {

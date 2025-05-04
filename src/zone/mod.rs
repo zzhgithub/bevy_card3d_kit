@@ -2,12 +2,13 @@ pub mod desk_zone;
 pub mod events;
 
 use crate::prelude::Card;
-use crate::zone::desk_zone::{DeskZonePlugin};
+use crate::zone::desk_zone::DeskZonePlugin;
 use crate::zone::events::CardOnZone;
 use bevy::app::App;
 use bevy::asset::Handle;
 use bevy::pbr::StandardMaterial;
 use bevy::prelude::*;
+use bevy_mod_outline::{GenerateOutlineNormalsSettings, OutlineMeshExt};
 
 pub struct ZonePlugin;
 
@@ -53,11 +54,16 @@ fn spawn_zone<T>(
     T: Component + Clone + ZoneMaterialGetter,
 {
     for (zone_entity, &zone, t) in query.iter() {
+        let mut mesh = Cuboid::new(zone.size.x, zone.size.y, 0.00001)
+            .mesh()
+            .build();
+        mesh.generate_outline_normals(&GenerateOutlineNormalsSettings::default())
+            .unwrap();
         commands
             .entity(zone_entity)
             .insert((
                 zone.center.clone(),
-                Mesh3d(meshes.add(Rectangle::from_size(zone.size))),
+                Mesh3d(meshes.add(mesh.clone())),
                 MeshMaterial3d(t.get_mal(&mut materials, &asset_server)),
             ))
             .observe(deal_drop_card_on_zone);
