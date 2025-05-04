@@ -32,7 +32,7 @@ fn added_highlights(
             .insert(OutlineVolume {
                 visible: true,
                 colour: highlight.color,
-                width: 10.0,
+                width: 1.0,
             })
             .insert(OutlineStencil { ..default() });
     }

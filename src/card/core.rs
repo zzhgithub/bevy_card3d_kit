@@ -73,7 +73,7 @@ fn render_added_card<T>(
             // 计算新的位置
             .insert(OutlineVolume {
                 visible: false,
-                width: 10.0,
+                width: 1.0,
                 ..Default::default()
             })
             .insert(OutlineStencil { ..default() })

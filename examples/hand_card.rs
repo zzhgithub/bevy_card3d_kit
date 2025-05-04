@@ -1,15 +1,16 @@
 mod helpers;
 use bevy::DefaultPlugins;
 use bevy::app::{App, Startup};
+use bevy::color::palettes::css::GOLD;
 use bevy::math::Vec3;
 use bevy::pbr::PointLight;
 use bevy::prelude::*;
+use bevy_card3d_kit::highlight::Highlight;
 use bevy_card3d_kit::prelude::{
     Card, Card3DPlugins, CardLine, HAND_CARD_LEVEL, HandCard, Moveable, SharkCamera,
 };
 use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-
 use helpers::*;
 fn main() {
     App::new()
@@ -65,6 +66,9 @@ fn setup(mut commands: Commands) {
             Moveable,
             HandCard {
                 belong_to_card_line: Some(card_line_entity),
+            },
+            Highlight {
+                color: Color::Srgba(GOLD).with_alpha(0.3),
             },
         ));
     });
