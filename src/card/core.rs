@@ -73,7 +73,7 @@ fn render_added_card<T>(
             // 计算新的位置
             .insert(OutlineVolume {
                 visible: false,
-                width: 1.0,
+                width: 10.0,
                 ..Default::default()
             })
             .insert(OutlineStencil { ..default() })
@@ -81,20 +81,24 @@ fn render_added_card<T>(
             .insert(Visibility::default())
             .insert(AnimationTarget)
             .with_children(|parent| {
+                // 加载outline的Mesh
+                parent.spawn((
+                    Mesh3d(mesh_list.clone().3),
+                    Transform::default(),
+                    InheritOutline,
+                ));
                 // 加载黑色边框
                 for (mesh_handle, trans) in mesh_list.clone().0 {
                     parent.spawn((
                         Mesh3d(mesh_handle.clone()),
                         trans.clone(),
                         MeshMaterial3d(materials.add(Color::BLACK)),
-                        InheritOutline,
                     ));
                 }
                 // 加载内容
                 for (mesh_handle, trans) in mesh_list.clone().1 {
                     parent
                         .spawn((
-                            InheritOutline,
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
                             MeshMaterial3d(
@@ -118,7 +122,6 @@ fn render_added_card<T>(
                 for (mesh_handle, trans) in mesh_list.clone().2 {
                     parent
                         .spawn((
-                            InheritOutline,
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
                             MeshMaterial3d(materials.add(StandardMaterial {

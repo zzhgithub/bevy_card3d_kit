@@ -1,12 +1,12 @@
 mod helpers;
 
+use bevy::color::palettes::css::LIGHT_SKY_BLUE;
 use bevy::prelude::*;
 use bevy_card3d_kit::highlight::Highlight;
 use bevy_card3d_kit::prelude::{Card, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera};
 use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use helpers::*;
-
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, Card3DPlugins, SimplePlugin))
@@ -70,7 +70,7 @@ fn spacebar_system(
         for entity in query.iter() {
             info!("Added");
             commands.entity(entity).insert(Highlight {
-                color: Color::WHITE,
+                color: Color::Srgba(LIGHT_SKY_BLUE),
             });
         }
     }

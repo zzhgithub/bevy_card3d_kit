@@ -1,6 +1,8 @@
 mod helpers;
 
+use bevy::color::palettes::css::GOLD;
 use bevy::prelude::*;
+use bevy_card3d_kit::highlight::Highlight;
 use bevy_card3d_kit::prelude::{Card, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera};
 use bevy_card3d_kit::tween::card_crack::CardCrack;
 use bevy_card3d_kit::tween::card_gray::EffectCut;
@@ -42,6 +44,9 @@ fn setup(mut commands: Commands) {
         },
         Card {
             origin: Transform::from_xyz(0.0, 0.0, HAND_CARD_LEVEL),
+        },
+        Highlight {
+            color: Color::Srgba(GOLD),
         },
     ));
 }

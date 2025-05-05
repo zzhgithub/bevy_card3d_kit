@@ -14,6 +14,7 @@ pub fn gen_card_mesh_list(
     [(Handle<Mesh>, Transform); 8],
     [(Handle<Mesh>, Transform); 1],
     [(Handle<Mesh>, Transform); 1],
+    Handle<Mesh>,
 ) {
     // 四个 扇形 四个长方形  一个中央的部分
     let a: f32 = width - 2.0 * radius;
@@ -42,38 +43,24 @@ pub fn gen_card_mesh_list(
     let back = Transform::from_xyz(0.0, 0.0, -thick / 2.);
     // 加载一组的shape
 
-    let mut circular_sector = Extrusion::new(CircularSector::new(radius, PI / 4.0), thick)
+    let circular_sector = Extrusion::new(CircularSector::new(radius, PI / 4.0), thick)
         .mesh()
         .build();
-    circular_sector
-        .generate_outline_normals(&GenerateOutlineNormalsSettings::default())
-        .unwrap();
 
-    let mut top_mesh = Extrusion::new(Rectangle::from_size(Vec2::new(a, radius)), thick)
+    let top_mesh = Extrusion::new(Rectangle::from_size(Vec2::new(a, radius)), thick)
         .mesh()
         .build();
-    top_mesh
-        .generate_outline_normals(&GenerateOutlineNormalsSettings::default())
-        .unwrap();
-    let mut bottom_mesh = Extrusion::new(Rectangle::from_size(Vec2::new(a, radius)), thick)
+    let bottom_mesh = Extrusion::new(Rectangle::from_size(Vec2::new(a, radius)), thick)
         .mesh()
         .build();
-    bottom_mesh
-        .generate_outline_normals(&GenerateOutlineNormalsSettings::default())
-        .unwrap();
 
-    let mut left_mesh = Extrusion::new(Rectangle::from_size(Vec2::new(radius, b)), thick)
+    let left_mesh = Extrusion::new(Rectangle::from_size(Vec2::new(radius, b)), thick)
         .mesh()
         .build();
-    left_mesh
-        .generate_outline_normals(&GenerateOutlineNormalsSettings::default())
-        .unwrap();
-    let mut right_mesh = Extrusion::new(Rectangle::from_size(Vec2::new(radius, b)), thick)
+
+    let right_mesh = Extrusion::new(Rectangle::from_size(Vec2::new(radius, b)), thick)
         .mesh()
         .build();
-    right_mesh
-        .generate_outline_normals(&GenerateOutlineNormalsSettings::default())
-        .unwrap();
     let frames = [
         (meshes.add(circular_sector.clone()), right_top),
         (meshes.add(circular_sector.clone()), right_bottom),
@@ -85,13 +72,17 @@ pub fn gen_card_mesh_list(
         (meshes.add(right_mesh), right),
     ];
 
-    let mut content_mesh = Cuboid::new(a, b, thick / 2.0).mesh().build();
-    content_mesh
-        .generate_outline_normals(&GenerateOutlineNormalsSettings::default())
-        .unwrap();
+    let content_mesh = Cuboid::new(a, b, thick / 2.0).mesh().build();
     // 正面主要
     let content = [(meshes.add(content_mesh.clone()), center)];
     let back_side = [(meshes.add(content_mesh.clone()), back)];
 
-    (frames, content, back_side)
+    let mut outline_mesh = Cuboid::new(a + 2.0 * radius, b + 2.0 * radius, thick)
+        .mesh()
+        .build();
+    outline_mesh
+        .generate_outline_normals(&GenerateOutlineNormalsSettings::default())
+        .unwrap();
+
+    (frames, content, back_side, meshes.add(outline_mesh))
 }

@@ -1,7 +1,7 @@
 mod helpers;
 use bevy::DefaultPlugins;
 use bevy::app::{App, Startup};
-use bevy::color::palettes::css::GOLD;
+use bevy::color::palettes::css::{GOLD, LIGHT_SKY_BLUE};
 use bevy::math::Vec3;
 use bevy::pbr::PointLight;
 use bevy::prelude::*;
@@ -55,7 +55,7 @@ fn setup(mut commands: Commands) {
         .id();
 
     // 加载手卡
-    card_list.iter().for_each(|name| {
+    card_list.iter().enumerate().for_each(|(index, name)| {
         commands.spawn((
             Card {
                 origin: Transform::default(),
@@ -68,7 +68,11 @@ fn setup(mut commands: Commands) {
                 belong_to_card_line: Some(card_line_entity),
             },
             Highlight {
-                color: Color::Srgba(GOLD).with_alpha(0.3),
+                color: if index < 2 {
+                    Color::Srgba(GOLD).with_alpha(0.3)
+                } else {
+                    Color::Srgba(LIGHT_SKY_BLUE).with_alpha(0.3)
+                },
             },
         ));
     });
