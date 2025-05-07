@@ -53,7 +53,7 @@ pub fn change_desk_cards_event(
     mut commands: Commands,
     mut desk_card_changed: EventReader<DeskZoneChangedEvent>,
     mut query_desk_zone: Query<(&Zone, &mut DeskZone, Option<&CardState>)>,
-    mut query_card: Query<(&mut Card, &mut Transform)>,
+    mut query_card: Query<(&mut Card, Option<&mut Transform>)>,
     card3d_config: Res<Card3DConfig>,
 ) {
     for event in desk_card_changed.read() {
@@ -95,7 +95,7 @@ fn change_desk_cards_transform(
     zone: &Zone,
     desk_zone: &DeskZone,
     commands: &mut Commands,
-    query_card: &mut Query<(&mut Card, &mut Transform)>,
+    query_card: &mut Query<(&mut Card, Option<&mut Transform>)>,
     opt_state: Option<CardState>,
     card3d_config: Card3DConfig,
 ) {
@@ -111,9 +111,14 @@ fn change_desk_cards_transform(
             if let Some(state) = &opt_state {
                 commands.entity(*card_entity).insert(state.clone());
             }
-            if let Ok((mut card, card_transform)) = query_card.get_mut(*card_entity) {
+            if let Ok((mut card, opt_card_transform)) = query_card.get_mut(*card_entity) {
                 let target = card_entity.clone().into_target();
-                let mut start = target.transform_state(*card_transform);
+                let mut start = if let Some(card_transform) = opt_card_transform {
+                    target.transform_state(*card_transform)
+                } else {
+                    target.transform_state(card.origin)
+                };
+
                 let mut end = zone.center.clone();
                 end.translation.z = (index + 1) as f32 * card3d_config.thick;
                 let calculated_end = calculate_transform(end.clone(), opt_state.clone());
