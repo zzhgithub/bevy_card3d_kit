@@ -143,10 +143,13 @@ pub fn preview_on_click(
     match now_state.get() {
         PreviewState::Disable => {
             if let Ok(parent) = p_q.get(drag_start.target) {
-                if let Ok(preview) = query.get(parent.parent()) {
-                    let image = asset_server.load(format!("cards/{}.png", preview.0));
-                    image_stage.0 = Some(image);
-                    next_state.set(PreviewState::Show);
+                // 右键才处理
+                if drag_start.button == PointerButton::Secondary {
+                    if let Ok(preview) = query.get(parent.parent()) {
+                        let image = asset_server.load(format!("cards/{}.png", preview.0));
+                        image_stage.0 = Some(image);
+                        next_state.set(PreviewState::Show);
+                    }
                 }
             }
         }
