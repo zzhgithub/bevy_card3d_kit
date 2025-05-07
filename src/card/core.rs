@@ -54,7 +54,7 @@ fn render_added_card<T>(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut card_materials: ResMut<Assets<CardMaterial>>,
     card3d_config: Res<Card3DConfig>,
-    query_card: Query<(Entity, &Card, &T, Option<&CardState>), Added<Card>>,
+    query_card: Query<(Entity, &Card, &T, Option<&CardState>), Added<T>>,
     asset_server: Res<AssetServer>,
 ) where
     T: Component + Clone + CardMaterialGetter,

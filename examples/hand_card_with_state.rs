@@ -86,7 +86,7 @@ fn setup(mut commands: Commands) {
     let opponent_card_line_entity = commands
         .spawn((
             CardLine {
-                transform: Transform::from_xyz(0.0, 6., HAND_CARD_LEVEL),
+                transform: Transform::from_xyz(0.0, 6.7, HAND_CARD_LEVEL),
                 card_list: vec![],
             },
             CardState {
