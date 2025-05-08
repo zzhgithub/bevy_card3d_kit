@@ -1,5 +1,5 @@
 use crate::card::card_material::CardMaterialPlugin;
-use crate::card::card_state::CardState;
+use crate::card::card_state::{CardState, CardStatePlugin};
 use crate::highlight::HighlightPlugin;
 use crate::prelude::card_namer::CardNamerPlugin;
 use crate::prelude::{Card, HandCardPlane, HandCardPlugin};
@@ -49,6 +49,7 @@ impl Plugin for Card3DPlugins {
             },
             ZonePlugin,
             HighlightPlugin,
+            CardStatePlugin,
         ))
         .register_type::<CardState>()
         .register_type::<DeskZone>()
