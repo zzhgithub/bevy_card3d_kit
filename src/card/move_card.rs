@@ -36,7 +36,7 @@ pub fn move_on_drag<P>() -> impl Fn(
     Query<&mut Transform, (With<Card>, With<Moveable>)>,
     Single<(&Camera, &GlobalTransform)>,
     Single<&Window>,
-    Single<&GlobalTransform, With<P>>,
+    Single<(&GlobalTransform, &Transform), (Without<Card>, With<P>)>,
 )
 where
     P: Component,
@@ -55,15 +55,19 @@ where
                 return;
             };
 
+            let (ground_transform, ground_tr) = *ground;
+
             // Calculate if and where the ray is hitting the ground plane.
-            let Some(distance) =
-                ray.intersect_plane(ground.translation(), InfinitePlane3d::new(ground.up()))
-            else {
+            let Some(distance) = ray.intersect_plane(
+                ground_transform.translation(),
+                InfinitePlane3d::new(ground_transform.up()),
+            ) else {
                 return;
             };
             let point = ray.get_point(distance);
             transform.translation.x = point.x;
             transform.translation.y = point.y;
+            transform.translation.z = ground_tr.translation.z;
         }
     }
 }
