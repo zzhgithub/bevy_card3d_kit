@@ -2,7 +2,8 @@ use bevy::prelude::*;
 use std::f32::consts::PI;
 
 /// 卡片姿态信息
-#[derive(Debug, PartialEq, Eq, Clone, Component)]
+#[derive(Debug, PartialEq, Eq, Clone, Component, Reflect)]
+#[reflect(Component)]
 pub struct CardState {
     /// 正面朝上
     pub face_up: bool,

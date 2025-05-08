@@ -1,11 +1,13 @@
 use crate::card::card_material::CardMaterialPlugin;
+use crate::card::card_state::CardState;
 use crate::highlight::HighlightPlugin;
 use crate::prelude::card_namer::CardNamerPlugin;
-use crate::prelude::{HandCardPlane, HandCardPlugin};
+use crate::prelude::{Card, HandCardPlane, HandCardPlugin};
 #[cfg(feature = "image_preview")]
 use crate::preview_plugins::PreviewPlugins;
 use crate::tween::ExtTweenPlugins;
 use crate::zone::ZonePlugin;
+use crate::zone::desk_zone::DeskZone;
 use bevy::asset::embedded_asset;
 use bevy::prelude::*;
 use bevy_tween::DefaultTweenPlugins;
@@ -48,6 +50,9 @@ impl Plugin for Card3DPlugins {
             ZonePlugin,
             HighlightPlugin,
         ))
+        .register_type::<CardState>()
+        .register_type::<DeskZone>()
+        .register_type::<Card>()
         .init_resource::<Card3DConfig>();
         #[cfg(feature = "image_preview")]
         app.add_plugins(PreviewPlugins);

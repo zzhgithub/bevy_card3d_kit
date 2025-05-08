@@ -1,3 +1,4 @@
+use crate::card::card_state::CardState;
 use crate::prelude::event::DeclareDraggingDoneForCard;
 use crate::prelude::{Card, Dragged};
 use crate::tween::animation::play_card_going_back_to_place_animation;
@@ -90,14 +91,27 @@ fn on_drag_start(
 
 fn back_to_origin_when_unused(
     drag_end: Trigger<Pointer<DragEnd>>,
-    mut dragged_cards: Query<(&mut Transform, Entity, &Card, &mut Dragged, &Name)>,
+    mut dragged_cards: Query<(
+        &mut Transform,
+        Entity,
+        &Card,
+        &mut Dragged,
+        &Name,
+        Option<&CardState>,
+    )>,
     mut commands: Commands,
     query: Query<&Children>,
 ) {
     debug!("drag end {:?}", drag_end.target);
     debug!("drag end {:?}", drag_end.target());
-    if let Ok((card_transform, card_entity, card, mut card_dragged_component, card_name)) =
-        dragged_cards.get_mut(drag_end.target())
+    if let Ok((
+        card_transform,
+        card_entity,
+        card,
+        mut card_dragged_component,
+        card_name,
+        opt_state,
+    )) = dragged_cards.get_mut(drag_end.target())
     {
         debug!("drag end!!!");
         if let Ok(children) = query.get(drag_end.target()) {
@@ -112,6 +126,7 @@ fn back_to_origin_when_unused(
             card,
             &card_transform,
             card_name,
+            opt_state.cloned(),
             &mut commands,
         );
     }

@@ -14,7 +14,8 @@ use bevy_mod_outline::{InheritOutline, OutlineStencil, OutlineVolume};
 use bevy_tween::tween::AnimationTarget;
 use std::path::Path;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Reflect)]
+#[reflect(Component)]
 pub struct Card {
     pub origin: Transform,
 }
