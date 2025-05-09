@@ -15,7 +15,7 @@ pub struct DeskCard {
     pub belongs_to_desk: Option<Entity>,
 }
 
-#[derive(Component, Clone, Debug, Default,Reflect)]
+#[derive(Component, Clone, Debug, Default, Reflect)]
 #[reflect(Component)]
 pub struct DeskZone {
     pub card_list: Vec<Entity>,
@@ -40,10 +40,12 @@ impl Plugin for DeskZonePlugin {
 
 fn added_desk_card(
     mut desk_card_event: EventWriter<DeskZoneChangedEvent>,
+    mut commands: Commands,
     query: Query<(Entity, &DeskCard), (With<Card>, Added<DeskCard>)>,
 ) {
     for (card_entity, desk_card) in query.iter() {
         if let Some(belongs_to_desk) = desk_card.belongs_to_desk {
+            commands.entity(card_entity).remove::<CardState>();
             desk_card_event.write(DeskZoneChangedEvent::Added {
                 desk: belongs_to_desk,
                 card: card_entity,
@@ -56,7 +58,7 @@ pub fn change_desk_cards_event(
     mut commands: Commands,
     mut desk_card_changed: EventReader<DeskZoneChangedEvent>,
     mut query_desk_zone: Query<(&Zone, &mut DeskZone, Option<&CardState>)>,
-    mut query_card: Query<(&mut Card, Option<&mut Transform>)>,
+    mut query_card: Query<(&mut Card, Option<&mut Transform>, Option<&CardState>)>,
     card3d_config: Res<Card3DConfig>,
 ) {
     for event in desk_card_changed.read() {
@@ -98,7 +100,7 @@ fn change_desk_cards_transform(
     zone: &Zone,
     desk_zone: &DeskZone,
     commands: &mut Commands,
-    query_card: &mut Query<(&mut Card, Option<&mut Transform>)>,
+    query_card: &mut Query<(&mut Card, Option<&mut Transform>, Option<&CardState>)>,
     opt_state: Option<CardState>,
     card3d_config: Card3DConfig,
 ) {
@@ -110,11 +112,9 @@ fn change_desk_cards_transform(
         .iter()
         .enumerate()
         .for_each(|(index, card_entity)| {
-            // 更改卡片的姿态信息
-            if let Some(state) = &opt_state {
-                commands.entity(*card_entity).insert(state.clone());
-            }
-            if let Ok((mut card, opt_card_transform)) = query_card.get_mut(*card_entity) {
+            if let Ok((mut card, opt_card_transform, opt_card_state)) =
+                query_card.get_mut(*card_entity)
+            {
                 let target = card_entity.clone().into_target();
                 let mut start = if let Some(card_transform) = opt_card_transform {
                     target.transform_state(*card_transform)
@@ -133,7 +133,16 @@ fn change_desk_cards_transform(
                     end.translation.y =
                         end.translation.y - half_height + half_per + index as f32 * per;
                 }
-                let calculated_end = calculate_transform(end.clone(), opt_state.clone());
+                let calculated_end = if opt_card_state.is_some() {
+                    calculate_transform(end.clone(), opt_card_state.cloned())
+                } else {
+                    if let Some(zone_state) = opt_state.clone() {
+                        info!("Init state in zone");
+                        commands.entity(*card_entity).insert(zone_state.clone());
+                    }
+                    calculate_transform(end.clone(), opt_state.clone())
+                };
+
                 // 修改这里的值
                 card.origin = Transform::from_translation(end.translation);
                 info!(

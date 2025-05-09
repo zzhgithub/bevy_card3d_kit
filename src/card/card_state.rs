@@ -59,28 +59,33 @@ fn on_update_change_state(
                 .entity(entity)
                 .insert(change_card_state.0.clone())
                 .remove::<ChangeCardState>();
-            commands
-                .spawn(Name::new(format!(
-                    "change card state {:?}",
-                    change_card_state
-                )))
-                .animation()
-                .insert(sequence((
-                    tween(
-                        Duration::from_secs_f32(1.1),
-                        EaseKind::ExponentialOut,
-                        start.translation_to(end_tr.translation),
-                    ),
-                    tween(
-                        Duration::from_secs_f32(1.1),
-                        EaseKind::ExponentialOut,
-                        start.rotation_to(end_tr.rotation),
-                    ),
-                    tween(
-                        Duration::from_secs_f32(1.1),
-                        EaseKind::ExponentialOut,
-                        start.scale_to(end_tr.scale),
-                    ),
-                )));
+            info!("state from {:?} To {:?}", card_state, change_card_state.0);
+            if change_card_state.0.face_up != card_state.face_up
+                || change_card_state.0.vertical != card_state.vertical
+            {
+                commands
+                    .spawn(Name::new(format!(
+                        "change card state {:?}",
+                        change_card_state
+                    )))
+                    .animation()
+                    .insert(sequence((
+                        tween(
+                            Duration::from_secs_f32(0.6),
+                            EaseKind::ExponentialOut,
+                            start.translation_to(end_tr.translation),
+                        ),
+                        tween(
+                            Duration::from_secs_f32(0.6),
+                            EaseKind::ExponentialOut,
+                            start.rotation_to(end_tr.rotation),
+                        ),
+                        tween(
+                            Duration::from_secs_f32(0.6),
+                            EaseKind::ExponentialOut,
+                            start.scale_to(end_tr.scale),
+                        ),
+                    )));
+            }
         })
 }
