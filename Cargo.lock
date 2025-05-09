@@ -909,11 +909,12 @@ dependencies = [
 [[package]]
 name = "bevy_mod_outline"
 version = "0.10.0"
-source = "git+https://github.com/komadori/bevy_mod_outline.git?branch=bevy-0.16#1b0c3348f3d2f1f627907e2c7f6cdeb33ea4defc"
+source = "git+https://github.com/komadori/bevy_mod_outline.git?branch=bevy-0.16#fde31afe4e06de0e9f22f3aa421dcb0c1ad08f90"
 dependencies = [
  "bevy",
  "bitfield",
  "interpolation",
+ "itertools 0.14.0",
  "nonmax",
  "thiserror 1.0.69",
  "wgpu-types",
@@ -1249,8 +1250,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_time_runner"
-version = "0.3.0"
-source = "git+https://github.com/Multirious/bevy_time_runner?branch=bevy-v0.16.0#255a89cd375a98dab2ed318420154a4131af14ff"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2585511ce9da102753cfb33eef39a1749a02dc5670e05d01004001e22cba326f"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -1279,8 +1281,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_tween"
-version = "0.7.0"
-source = "git+https://github.com/Multirious/bevy_tween.git?branch=bevy-v0.16.0#8080585d1b015f82db7ae0d948f50c9d5c0f8f06"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aae743c5677965fa86495604847a55fad480c84f12706b446f57a878bce9d4d2"
 dependencies = [
  "bevy",
  "bevy_math",
