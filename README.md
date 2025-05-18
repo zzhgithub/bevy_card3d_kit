@@ -326,7 +326,11 @@ https://github.com/Rabbival/bevy_play_card
 
 # Change Log
 
-## 0.1.4   
+## 0.1.5
+
+- 修复Desk添加时的状态异常bug
+
+## 0.1.4
 
 - 升级bevy 到0.16
 - 实现效果无效动画

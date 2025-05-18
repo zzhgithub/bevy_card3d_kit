@@ -34,7 +34,8 @@ pub struct DeskZonePlugin;
 impl Plugin for DeskZonePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<DeskZoneChangedEvent>();
-        app.add_systems(Update, (added_desk_card, change_desk_cards_event));
+        app.add_systems(Update, added_desk_card);
+        app.add_systems(PostUpdate, change_desk_cards_event);
     }
 }
 
@@ -134,6 +135,7 @@ fn change_desk_cards_transform(
                         end.translation.y - half_height + half_per + index as f32 * per;
                 }
                 let calculated_end = if opt_card_state.is_some() {
+                    info!("Has old state {:?}", opt_card_state);
                     calculate_transform(end.clone(), opt_card_state.cloned())
                 } else {
                     if let Some(zone_state) = opt_state.clone() {
