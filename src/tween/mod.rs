@@ -1,5 +1,6 @@
 use crate::card::event::CardsEventsPlugin;
 use crate::tween::base_color::{BaseColor, basic_color};
+use crate::tween::card_crack::CardCrackPlugin;
 use crate::tween::card_gray::CardGrayPlugin;
 use crate::tween::clear_on_finish::clear_on_finish_system;
 use crate::tween::shark::{SharkCamera, custom_interpolators_plugin, effect_intensity};
@@ -18,6 +19,7 @@ use std::time::Duration;
 
 pub mod animation;
 mod base_color;
+pub mod card_crack;
 pub mod card_gray;
 pub mod clear_on_finish;
 pub mod shark;
@@ -26,7 +28,7 @@ pub struct ExtTweenPlugins;
 
 impl Plugin for ExtTweenPlugins {
     fn build(&self, app: &mut App) {
-        app.add_plugins((CardsEventsPlugin, CardGrayPlugin));
+        app.add_plugins((CardsEventsPlugin, CardGrayPlugin, CardCrackPlugin));
         app.add_plugins(TweenEventPlugin::<DespawnEntityAfterAll>::default());
         // 在动画执行后 删除原来的动画实体
         app.add_systems(Update, (clear_on_finish_system, despawn_done_time_runners));

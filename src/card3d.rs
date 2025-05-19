@@ -1,13 +1,17 @@
+use crate::card::card_material::CardMaterialPlugin;
+use crate::card::card_state::{CardState, CardStatePlugin};
+use crate::highlight::HighlightPlugin;
 use crate::prelude::card_namer::CardNamerPlugin;
-use crate::prelude::{HandCardPlane, HandCardPlugin};
+use crate::prelude::{Card, HandCardPlane, HandCardPlugin};
+#[cfg(feature = "image_preview")]
+use crate::preview_plugins::PreviewPlugins;
 use crate::tween::ExtTweenPlugins;
 use crate::zone::ZonePlugin;
+use crate::zone::desk_zone::DeskZone;
+use bevy::asset::embedded_asset;
 use bevy::prelude::*;
 use bevy_tween::DefaultTweenPlugins;
 use std::marker::PhantomData;
-use crate::card::card_material::CardMaterialPlugin;
-#[cfg(feature = "image_preview")]
-use crate::preview_plugins::PreviewPlugins;
 
 #[derive(Resource, Copy, Clone)]
 pub struct Card3DConfig {
@@ -32,6 +36,7 @@ impl Default for Card3DConfig {
 pub struct Card3DPlugins;
 impl Plugin for Card3DPlugins {
     fn build(&self, app: &mut App) {
+        embedded_asset!(app, "", "assets/shaders/crack.png");
         app.add_plugins((
             DefaultTweenPlugins,
             CardNamerPlugin,
@@ -43,7 +48,12 @@ impl Plugin for Card3DPlugins {
                 _phantom: PhantomData,
             },
             ZonePlugin,
+            HighlightPlugin,
+            CardStatePlugin,
         ))
+        .register_type::<CardState>()
+        .register_type::<DeskZone>()
+        .register_type::<Card>()
         .init_resource::<Card3DConfig>();
         #[cfg(feature = "image_preview")]
         app.add_plugins(PreviewPlugins);

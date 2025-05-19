@@ -1,7 +1,10 @@
 mod helpers;
 
+use bevy::color::palettes::css::GOLD;
 use bevy::prelude::*;
+use bevy_card3d_kit::highlight::Highlight;
 use bevy_card3d_kit::prelude::{Card, Card3DPlugins, HAND_CARD_LEVEL, SharkCamera};
+use bevy_card3d_kit::tween::card_crack::CardCrack;
 use bevy_card3d_kit::tween::card_gray::EffectCut;
 use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -19,7 +22,6 @@ fn main() {
         .run();
 }
 
-// 初始化方法
 fn setup(mut commands: Commands) {
     // 相机
     commands.spawn((
@@ -43,31 +45,34 @@ fn setup(mut commands: Commands) {
         Card {
             origin: Transform::from_xyz(0.0, 0.0, HAND_CARD_LEVEL),
         },
+        Highlight {
+            color: Color::Srgba(GOLD),
+        },
     ));
 }
 
 fn spacebar_system(
     input: Res<ButtonInput<KeyCode>>,
-    query: Query<Entity, (With<Card>, Without<EffectCut>)>,
+    query: Query<Entity, (With<Card>, Without<CardCrack>)>,
     mut commands: Commands,
 ) {
     if input.just_pressed(KeyCode::Space) {
         for entity in query.iter() {
             info!("Added");
-            commands.entity(entity).insert(EffectCut);
+            commands.entity(entity).insert(CardCrack);
         }
     }
 }
 
 fn spacebar_system_b(
     input: Res<ButtonInput<KeyCode>>,
-    query: Query<Entity, (With<Card>, With<EffectCut>)>,
+    query: Query<Entity, (With<Card>, With<CardCrack>)>,
     mut commands: Commands,
 ) {
     if input.just_pressed(KeyCode::Space) {
         for entity in query.iter() {
             info!("Added");
-            commands.entity(entity).remove::<EffectCut>();
+            commands.entity(entity).remove::<CardCrack>();
         }
     }
 }

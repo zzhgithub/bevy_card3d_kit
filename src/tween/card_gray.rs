@@ -20,7 +20,7 @@ impl Interpolator for CardGray {
     type Item = CardMaterial;
 
     fn interpolate(&self, item: &mut Self::Item, value: f32) {
-        item.grayscale = self.start.lerp(self.end, value);
+        item.gray_scale = self.start.lerp(self.end, value);
     }
 }
 
@@ -38,7 +38,11 @@ impl Plugin for CardGrayPlugin {
             .register_type::<AssetTween<CardGray>>();
         app.add_systems(
             Update,
-            (add_effect_cut, deal_card_effect_cut_animation_event),
+            (
+                add_effect_cut,
+                deal_card_effect_cut_animation_event,
+                remove_effect_cut,
+            ),
         );
     }
 }
@@ -74,7 +78,6 @@ fn deal_card_effect_cut_animation_event(
                 if let Ok(material) = query_mal.get(inner_entity) {
                     let gray_target = material.clone().0.into_target();
                     let animation_target = event.card_entity.clone().into_target();
-                    commands.entity(event.card_entity).remove::<EffectCut>();
                     // 创建动画
                     commands
                         .spawn(Name::new(format!("card gray {}", card_name)))
@@ -116,6 +119,31 @@ fn deal_card_effect_cut_animation_event(
                                 animation_target.with(scale(Vec3::splat(1.2), Vec3::splat(1.0))),
                             ),
                         )));
+                }
+            }
+        }
+    }
+}
+
+fn remove_effect_cut(
+    mut commands: Commands,
+    mut removed: RemovedComponents<EffectCut>,
+    query: Query<(&Name, &Children), With<Card>>,
+    query_mal: Query<&MeshMaterial3d<CardMaterial>>,
+) {
+    for entity in removed.read() {
+        if let Ok((card_name, children)) = query.get(entity) {
+            for inner_entity in children.iter() {
+                if let Ok(material) = query_mal.get(inner_entity) {
+                    let gray_target = material.clone().0.into_target();
+                    commands
+                        .spawn(Name::new(format!("card gray {}", card_name)))
+                        .animation()
+                        .insert(tween(
+                            Duration::from_secs_f32(0.6),
+                            EaseKind::ExponentialOut,
+                            gray_target.with(card_gray(1.0, 0.0)),
+                        ));
                 }
             }
         }

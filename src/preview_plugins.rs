@@ -1,3 +1,4 @@
+use crate::card::card_state::CardState;
 use crate::prelude::Card;
 use bevy::prelude::*;
 
@@ -132,7 +133,7 @@ fn check_long_press(
 
 pub fn preview_on_click(
     drag_start: Trigger<Pointer<Pressed>>,
-    query: Query<&mut ImagePreview, With<Card>>,
+    query: Query<(&mut ImagePreview, Option<&CardState>), With<Card>>,
     mut image_stage: ResMut<ImageStage>,
     mut next_state: ResMut<NextState<PreviewState>>,
     mut now_state: Res<State<PreviewState>>,
@@ -143,10 +144,18 @@ pub fn preview_on_click(
     match now_state.get() {
         PreviewState::Disable => {
             if let Ok(parent) = p_q.get(drag_start.target) {
-                if let Ok(preview) = query.get(parent.parent()) {
-                    let image = asset_server.load(format!("cards/{}.png", preview.0));
-                    image_stage.0 = Some(image);
-                    next_state.set(PreviewState::Show);
+                // 右键才处理
+                if drag_start.button == PointerButton::Secondary {
+                    if let Ok((preview, opt_state)) = query.get(parent.parent()) {
+                        if let Some(card_state) = opt_state {
+                            if !card_state.face_up {
+                                return;
+                            }
+                        }
+                        let image = asset_server.load(format!("cards/{}.png", preview.0));
+                        image_stage.0 = Some(image);
+                        next_state.set(PreviewState::Show);
+                    }
                 }
             }
         }

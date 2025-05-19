@@ -514,10 +514,11 @@ dependencies = [
 
 [[package]]
 name = "bevy_card3d_kit"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
+ "bevy_mod_outline",
  "bevy_tween",
  "rand 0.9.0",
  "serde",
@@ -906,6 +907,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_mod_outline"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4fb205ce648281ec42dc1f82bb3143ff7c8b244974db5216bcd8c3b8a650cc6"
+dependencies = [
+ "bevy",
+ "bitfield",
+ "interpolation",
+ "itertools 0.14.0",
+ "nonmax",
+ "thiserror 1.0.69",
+ "wgpu-types",
+]
+
+[[package]]
 name = "bevy_pbr"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1235,8 +1251,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_time_runner"
-version = "0.3.0"
-source = "git+https://github.com/Multirious/bevy_time_runner?branch=bevy-v0.16.0#255a89cd375a98dab2ed318420154a4131af14ff"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2585511ce9da102753cfb33eef39a1749a02dc5670e05d01004001e22cba326f"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -1265,8 +1282,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_tween"
-version = "0.7.0"
-source = "git+https://github.com/Multirious/bevy_tween.git?branch=bevy-v0.16.0#8080585d1b015f82db7ae0d948f50c9d5c0f8f06"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aae743c5677965fa86495604847a55fad480c84f12706b446f57a878bce9d4d2"
 dependencies = [
  "bevy",
  "bevy_math",
@@ -1427,6 +1445,12 @@ name = "bit_field"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc827186963e592360843fb5ba4b973e145841266c1357f7180c43526f2e5b61"
+
+[[package]]
+name = "bitfield"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c821a6e124197eb56d907ccc2188eab1038fb919c914f47976e64dd8dbc855d1"
 
 [[package]]
 name = "bitflags"
@@ -2553,6 +2577,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "interpolation"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9c13ae9d91148fcb4aab6654c4c2a7d02a15395ea9e23f65170f175f8b269ce"
 
 [[package]]
 name = "itertools"

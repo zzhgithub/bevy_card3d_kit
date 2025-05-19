@@ -1,3 +1,4 @@
+use crate::card::card_state::{CardState, calculate_transform};
 use crate::prelude::Card;
 use crate::prelude::event::DeclareDraggingDoneForCard;
 use crate::zone::Zone;
@@ -13,10 +14,13 @@ pub fn play_card_going_back_to_place_animation(
     card: &Card,
     card_transform: &Transform,
     card_name: &Name,
+    opt_state: Option<CardState>,
     commands: &mut Commands,
 ) {
     let animation_target = card_entity.into_target();
     let mut transform_state = animation_target.transform_state(*card_transform);
+
+    let caculate_transform = calculate_transform(card.origin, opt_state);
     commands
         .spawn((Name::new(format!(
             "Go-back-to-origin-after-dragging animation parent for {}",
@@ -28,17 +32,17 @@ pub fn play_card_going_back_to_place_animation(
                 tween(
                     Duration::from_secs_f32(0.04),
                     EaseKind::ExponentialOut,
-                    transform_state.translation_to(card.origin.translation),
+                    transform_state.translation_to(caculate_transform.translation),
                 ),
                 tween(
                     Duration::from_secs_f32(0.04),
                     EaseKind::ExponentialOut,
-                    transform_state.rotation_to(card.origin.rotation),
+                    transform_state.rotation_to(caculate_transform.rotation),
                 ),
                 tween(
                     Duration::from_secs_f32(0.04),
                     EaseKind::ExponentialOut,
-                    transform_state.scale_to(card.origin.scale),
+                    transform_state.scale_to(caculate_transform.scale),
                 ),
             )),
             event(DeclareDraggingDoneForCard {

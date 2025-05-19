@@ -1,6 +1,6 @@
 [package]
 name = "bevy_card3d_kit"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 description = "a lib for put and use Card in 3d"
 categories = ["game-development"]
@@ -29,9 +29,12 @@ image_preview = [
 
 [dependencies]
 bevy = { version = "0.16.0", default-features = false }
-bevy_tween = { git = "https://github.com/Multirious/bevy_tween.git", branch = "bevy-v0.16.0" }
+#bevy_tween = { git = "https://github.com/Multirious/bevy_tween.git", branch = "bevy-v0.16.0" }
+bevy_tween = "0.8.0"
 serde = { version = "1.0.217", features = ["derive"] }
 rand = "0.9.0-beta.1"
+#bevy_mod_outline = { git = "https://github.com/komadori/bevy_mod_outline.git", branch = "bevy-0.16" }
+bevy_mod_outline = { version = "0.10.0" }
 
 [dev-dependencies]
 bevy-inspector-egui = "0.31.0"
@@ -92,3 +95,12 @@ path = "examples/desk_simple.rs"
 [[example]]
 name = "effect_cut"
 path = "examples/effect_cut.rs"
+
+[[example]]
+name = "crack"
+path = "examples/crack.rs"
+
+
+[[example]]
+name = "highlight"
+path = "examples/highlight.rs"

@@ -250,7 +250,7 @@ fn change_all_cards(
                     // 修改这里的值
                     card.origin = Transform::from_translation(tr_end.translation);
 
-                    info!(
+                    debug!(
                         "change from {:?} to {:?} state{:?}",
                         card.origin, calculated_end, opt_state
                     );

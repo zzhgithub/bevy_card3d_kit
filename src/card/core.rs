@@ -1,3 +1,4 @@
+use crate::card::card_material::CardMaterial;
 use crate::card::card_mesh::gen_card_mesh_list;
 use crate::card::card_state::{CardState, calculate_transform};
 use crate::card3d::Card3DConfig;
@@ -6,11 +7,15 @@ use crate::preview_plugins::ImagePreview;
 #[cfg(feature = "image_preview")]
 use crate::preview_plugins::preview_on_click;
 use crate::zone::events::CardOnCard;
+use bevy::asset::AssetPath;
+use bevy::asset::io::AssetSourceId;
 use bevy::prelude::*;
+use bevy_mod_outline::{InheritOutline, OutlineStencil, OutlineVolume};
 use bevy_tween::tween::AnimationTarget;
-use crate::card::card_material::CardMaterial;
+use std::path::Path;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Reflect)]
+#[reflect(Component)]
 pub struct Card {
     pub origin: Transform,
 }
@@ -29,17 +34,9 @@ pub enum Dragged {
 pub struct Hovered;
 pub trait CardMaterialGetter {
     /// 正面素材
-    fn get_face_mal(
-        &self,
-        materials: &mut ResMut<Assets<CardMaterial>>,
-        asset_server: &Res<AssetServer>,
-    ) -> Handle<CardMaterial>;
+    fn get_face_mal(&self) -> String;
     /// 背面素材
-    fn get_back_mal(
-        &self,
-        materials: &mut ResMut<Assets<StandardMaterial>>,
-        asset_server: &Res<AssetServer>,
-    ) -> Handle<StandardMaterial>;
+    fn get_back_mal(&self) -> String;
 
     #[cfg(feature = "image_preview")]
     fn get_id(&self) -> String;
@@ -58,7 +55,7 @@ fn render_added_card<T>(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut card_materials: ResMut<Assets<CardMaterial>>,
     card3d_config: Res<Card3DConfig>,
-    query_card: Query<(Entity, &Card, &T, Option<&CardState>), Added<Card>>,
+    query_card: Query<(Entity, &Card, &T, Option<&CardState>), Added<T>>,
     asset_server: Res<AssetServer>,
 ) where
     T: Component + Clone + CardMaterialGetter,
@@ -73,11 +70,24 @@ fn render_added_card<T>(
     for (card_entity, card, t, opt_state) in query_card.iter() {
         commands
             .entity(card_entity)
+            .insert(Mesh3d::default())
             // 计算新的位置
+            .insert(OutlineVolume {
+                visible: false,
+                width: 10.0,
+                ..Default::default()
+            })
+            .insert(OutlineStencil { ..default() })
             .insert(calculate_transform(card.origin.clone(), opt_state.cloned()))
             .insert(Visibility::default())
             .insert(AnimationTarget)
             .with_children(|parent| {
+                // 加载outline的Mesh
+                parent.spawn((
+                    Mesh3d(mesh_list.clone().3),
+                    Transform::default(),
+                    InheritOutline,
+                ));
                 // 加载黑色边框
                 for (mesh_handle, trans) in mesh_list.clone().0 {
                     parent.spawn((
@@ -92,7 +102,20 @@ fn render_added_card<T>(
                         .spawn((
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
-                            MeshMaterial3d(t.get_face_mal(&mut card_materials, &asset_server)),
+                            MeshMaterial3d(
+                                card_materials.add(CardMaterial {
+                                    gray_scale: 0.0,
+                                    crack_scale: 0.0,
+                                    base_color_texture: asset_server.load(t.get_face_mal()),
+                                    crack_texture: asset_server.load(
+                                        AssetPath::from(
+                                            Path::new("bevy_card3d_kit")
+                                                .join("assets/shaders/crack.png"),
+                                        )
+                                        .with_source(AssetSourceId::from("embedded")),
+                                    ),
+                                }),
+                            ),
                         ))
                         .observe(deal_drop_card_on_zone);
                 }
@@ -102,7 +125,13 @@ fn render_added_card<T>(
                         .spawn((
                             Mesh3d(mesh_handle.clone()),
                             trans.clone(),
-                            MeshMaterial3d(t.get_back_mal(&mut materials, &asset_server)),
+                            MeshMaterial3d(materials.add(StandardMaterial {
+                                base_color: Color::WHITE,
+                                unlit: true,
+                                base_color_texture: Some(asset_server.load(t.get_back_mal())),
+                                alpha_mode: AlphaMode::Blend,
+                                ..Default::default()
+                            })),
                         ))
                         .observe(deal_drop_card_on_zone);
                 }

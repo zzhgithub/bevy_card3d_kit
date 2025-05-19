@@ -15,9 +15,12 @@ pub struct DeskCard {
     pub belongs_to_desk: Option<Entity>,
 }
 
-#[derive(Component, Clone, Debug, Default)]
+#[derive(Component, Clone, Debug, Default, Reflect)]
+#[reflect(Component)]
 pub struct DeskZone {
     pub card_list: Vec<Entity>,
+    // 平铺容量
+    pub opt_capacity: Option<usize>,
 }
 
 #[derive(Event, Clone, Debug)]
@@ -31,16 +34,19 @@ pub struct DeskZonePlugin;
 impl Plugin for DeskZonePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<DeskZoneChangedEvent>();
-        app.add_systems(Update, (added_desk_card, change_desk_cards_event));
+        app.add_systems(Update, added_desk_card);
+        app.add_systems(PostUpdate, change_desk_cards_event);
     }
 }
 
 fn added_desk_card(
     mut desk_card_event: EventWriter<DeskZoneChangedEvent>,
+    mut commands: Commands,
     query: Query<(Entity, &DeskCard), (With<Card>, Added<DeskCard>)>,
 ) {
     for (card_entity, desk_card) in query.iter() {
         if let Some(belongs_to_desk) = desk_card.belongs_to_desk {
+            commands.entity(card_entity).remove::<CardState>();
             desk_card_event.write(DeskZoneChangedEvent::Added {
                 desk: belongs_to_desk,
                 card: card_entity,
@@ -53,7 +59,7 @@ pub fn change_desk_cards_event(
     mut commands: Commands,
     mut desk_card_changed: EventReader<DeskZoneChangedEvent>,
     mut query_desk_zone: Query<(&Zone, &mut DeskZone, Option<&CardState>)>,
-    mut query_card: Query<(&mut Card, &mut Transform)>,
+    mut query_card: Query<(&mut Card, Option<&mut Transform>, Option<&CardState>)>,
     card3d_config: Res<Card3DConfig>,
 ) {
     for event in desk_card_changed.read() {
@@ -95,7 +101,7 @@ fn change_desk_cards_transform(
     zone: &Zone,
     desk_zone: &DeskZone,
     commands: &mut Commands,
-    query_card: &mut Query<(&mut Card, &mut Transform)>,
+    query_card: &mut Query<(&mut Card, Option<&mut Transform>, Option<&CardState>)>,
     opt_state: Option<CardState>,
     card3d_config: Card3DConfig,
 ) {
@@ -107,16 +113,38 @@ fn change_desk_cards_transform(
         .iter()
         .enumerate()
         .for_each(|(index, card_entity)| {
-            // 更改卡片的姿态信息
-            if let Some(state) = &opt_state {
-                commands.entity(*card_entity).insert(state.clone());
-            }
-            if let Ok((mut card, card_transform)) = query_card.get_mut(*card_entity) {
+            if let Ok((mut card, opt_card_transform, opt_card_state)) =
+                query_card.get_mut(*card_entity)
+            {
                 let target = card_entity.clone().into_target();
-                let mut start = target.transform_state(*card_transform);
+                let mut start = if let Some(card_transform) = opt_card_transform {
+                    target.transform_state(*card_transform)
+                } else {
+                    target.transform_state(card.origin)
+                };
+
                 let mut end = zone.center.clone();
                 end.translation.z = (index + 1) as f32 * card3d_config.thick;
-                let calculated_end = calculate_transform(end.clone(), opt_state.clone());
+                // 进行平铺！
+                if let Some(capacity) = desk_zone.opt_capacity {
+                    let height = zone.size.y;
+                    let half_height = height / 2.0;
+                    let per = height / capacity as f32;
+                    let half_per = per / 2.0;
+                    end.translation.y =
+                        end.translation.y - half_height + half_per + index as f32 * per;
+                }
+                let calculated_end = if opt_card_state.is_some() {
+                    info!("Has old state {:?}", opt_card_state);
+                    calculate_transform(end.clone(), opt_card_state.cloned())
+                } else {
+                    if let Some(zone_state) = opt_state.clone() {
+                        info!("Init state in zone");
+                        commands.entity(*card_entity).insert(zone_state.clone());
+                    }
+                    calculate_transform(end.clone(), opt_state.clone())
+                };
+
                 // 修改这里的值
                 card.origin = Transform::from_translation(end.translation);
                 info!(
@@ -145,48 +173,4 @@ fn change_desk_cards_transform(
                     )),)));
             }
         });
-}
-
-#[deprecated]
-pub fn when_added_to_desk(
-    mut commands: Commands,
-    card3d_config: Res<Card3DConfig>,
-    mut added_query: Query<(Entity, &mut Card, &DeskCard, &Name, &Transform), Added<DeskCard>>,
-    mut zone_query: Query<(&Zone, Option<&mut DeskZone>, Option<&CardState>)>,
-) {
-    for (card_entity, mut card, desk_card, card_name, card_transform) in added_query.iter_mut() {
-        if let Some(desk_entity) = desk_card.belongs_to_desk {
-            if let Ok((zone, desk_zone, opt_state)) = zone_query.get_mut(desk_entity) {
-                let mut end = zone.center.clone();
-                if let Some(mut desk_zone) = desk_zone {
-                    desk_zone.card_list.push(card_entity);
-                    // 卡片移动到位置上
-                    end.translation.z =
-                        (desk_zone.card_list.len() + 1) as f32 * card3d_config.thick;
-                } else {
-                    end.translation.z = card3d_config.thick;
-                    commands.entity(desk_entity).insert(DeskZone {
-                        card_list: vec![card_entity],
-                    });
-                }
-                card.origin = end;
-                // 去除手牌 如果是手牌的话
-                commands
-                    .entity(card_entity)
-                    .remove::<HandCard>()
-                    .remove::<Moveable>();
-                if let Some(card_state) = opt_state {
-                    commands.entity(card_entity).insert(card_state.clone());
-                }
-                // 动画移动
-                play_card_going_back_to_trans_animation(
-                    card_entity,
-                    calculate_transform(end, opt_state.cloned()),
-                    card_transform,
-                    card_name,
-                    &mut commands,
-                );
-            }
-        }
-    }
 }
